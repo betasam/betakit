@@ -1,0 +1,70 @@
+#
+# Betakit
+# Author:	Sunil Beta <betasam@gmail.com>
+# Description:	Beta's toolkit to simplify linux userspace apps.
+#
+
+#
+# Copyright (c) 2005-2008 Sunil Beta Baskar <betasam@gmail.com>
+#
+
+# toolchain
+CROSS =
+CC = $(CROSS)gcc
+AR = $(CROSS)ar
+LD = $(CROSS)ld
+
+# system tools
+LN = $(shell which ln)
+DOXYGEN = $(shell which doxygen)
+
+# directories
+
+# Danger! Will Robinson, Danger!
+# DUH! what if somebody runs make -C ?
+TOP_DIR=$(shell pwd)
+INCLUDE_DIR = include
+SRC_DIR := src
+SRC_SUBDIRS := system datastructs ui test
+OBJ_DIR := obj
+BIN_DIR := bin
+LIB_DIR := lib
+DOC_DIR := doc
+
+# toolchain options
+CFLAGS = -O2 -Wall
+LDFLAGS = -L$(TOP_DIR)/$(LIB_DIR)
+LIBFLAGS = -fPIC
+SHAREDLIB = -shared
+INCLUDES = -I$(TOP_DIR)/$(INCLUDE_DIR)
+DOXYFILE = $(TOP_DIR)/Doxyfile
+MAKEFLAGS = -j1
+
+# version information
+VERSION = 1
+SUBVERSION = 0.1
+
+# for all subdirectory makefiles
+export CC AR INCLUDES INCLUDE_DIR SRC_SUBDIRS OBJ_DIR BIN_DIR TOP_DIR CFLAGS SRC_DIR
+export LIB_DIR LIBFLAGS SHAREDLIB VERSION SUBVERSION LN LDFLAGS
+
+# targets
+all: $(SRC_SUBDIRS)
+
+clean: 
+	for D in $(SRC_SUBDIRS); do \
+	 $(MAKE) -C $(TOP_DIR)/$(SRC_DIR)/$$D clean; \
+	done
+	@rm -rf $(TOP_DIR)/$(DOC_DIR)/*
+
+$(SRC_SUBDIRS):
+	$(MAKE) $(MAKEFLAGS) -C $(TOP_DIR)/$(SRC_DIR)/$@
+
+doc:
+	if [ -x $(DOXYGEN) ]; then \
+	$(DOXYGEN) $(DOXYFILE); \
+	fi
+
+.PHONY: clean doc
+
+.SILENT: $(SRC_SUBDIRS) clean
