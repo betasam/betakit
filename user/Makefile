@@ -65,6 +65,10 @@ doc:
 	$(DOXYGEN) $(DOXYFILE); \
 	fi
 
+build-dirs:
+	@mkdir -p $(TOP_DIR)/$(OBJ_DIR) $(TOP_DIR)/$(BIN_DIR) $(TOP_DIR)/$(LIB_DIR) $(TOP_DIR)/$(DOC_DIR)
+
+
 .PHONY: clean doc
 
 .SILENT: $(SRC_SUBDIRS) clean
