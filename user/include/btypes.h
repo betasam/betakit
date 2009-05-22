@@ -12,7 +12,7 @@
 #ifndef _BTYPES_H_INC
 #define _BTYPES_H_INC
 
-/* types */
+/* types, defined for 32-bit processors */
 typedef int	       t_s32;
 typedef long	       t_l;
 typedef char	       t_s8;
@@ -22,6 +22,10 @@ typedef unsigned int   t_u32;
 typedef unsigned       t_u;
 typedef unsigned long  t_ul;
 typedef unsigned char  t_u8;
+
+typedef unsigned long long	t_u64;
+typedef long long		t_s64;
+
 
 typedef void*	       t_ptr;
 typedef void*	       t_type;
