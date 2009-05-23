@@ -5,7 +5,7 @@
 #
 
 #
-# Copyright (c) 2005-2008 Sunil Beta Baskar <betasam@gmail.com>
+# Copyright (c) 2005-2009 Sunil Beta Baskar <betasam@gmail.com>
 #
 
 # toolchain
@@ -17,6 +17,8 @@ LD = $(CROSS)ld
 # system tools
 LN = $(shell which ln)
 DOXYGEN = $(shell which doxygen)
+CTAGS = $(shell which etags)
+
 
 # directories
 
@@ -39,6 +41,7 @@ SHAREDLIB = -shared
 INCLUDES = -I$(TOP_DIR)/$(INCLUDE_DIR)
 DOXYFILE = $(TOP_DIR)/Doxyfile
 MAKEFLAGS = -j1
+CTAGS_OPTS = -f $(TOP_DIR)/TAGS -e -a
 
 # version information
 VERSION = 1
@@ -56,6 +59,8 @@ clean:
 	 $(MAKE) -C $(TOP_DIR)/$(SRC_DIR)/$$D clean; \
 	done
 	@rm -rf $(TOP_DIR)/$(DOC_DIR)/*
+	@rm -f $(TOP_DIR)/TAGS
+	@rm -f $(TOP_DIR)/tags
 
 $(SRC_SUBDIRS):
 	$(MAKE) $(MAKEFLAGS) -C $(TOP_DIR)/$(SRC_DIR)/$@
@@ -68,7 +73,9 @@ doc:
 build-dirs:
 	@mkdir -p $(TOP_DIR)/$(OBJ_DIR) $(TOP_DIR)/$(BIN_DIR) $(TOP_DIR)/$(LIB_DIR) $(TOP_DIR)/$(DOC_DIR)
 
+tags:
+	@find $(TOP_DIR) -name *.[chS] | xargs -n1 $(CTAGS) $(CTAGS_OPTS)
 
-.PHONY: clean doc
+.PHONY: clean doc tags
 
-.SILENT: $(SRC_SUBDIRS) clean
+.SILENT: $(SRC_SUBDIRS) clean tags
