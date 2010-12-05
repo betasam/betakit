@@ -5,7 +5,7 @@
 #
 
 #
-# Copyright (c) 2005-2009 Sunil Beta Baskar <betasam@gmail.com>
+# Copyright (c) 2005-2012 Sunil Beta Baskar <betasam@gmail.com>
 #
 
 # toolchain
@@ -22,8 +22,8 @@ CTAGS = $(shell which etags)
 
 # directories
 
-# Danger! Will Robinson, Danger!
-# DUH! what if somebody runs make -C ?
+# FIXME!
+# what if somebody runs make -C ?
 TOP_DIR=$(shell pwd)
 INCLUDE_DIR = include
 SRC_DIR := src
@@ -67,6 +67,7 @@ $(SRC_SUBDIRS):
 
 doc:
 	if [ -x $(DOXYGEN) ]; then \
+	mkdir $(TOP_DIR)/$(DOC_DIR) -p; \
 	$(DOXYGEN) $(DOXYFILE); \
 	fi
 
@@ -79,3 +80,7 @@ tags:
 .PHONY: clean doc tags
 
 .SILENT: $(SRC_SUBDIRS) clean tags
+
+#
+# end of Top Makefile
+#
