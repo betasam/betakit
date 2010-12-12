@@ -7,15 +7,14 @@
 all: testsrc
 
 TEST_SRCS = hello.c
-TEST_OBJS = $(TOP_DIR)/$(OBJ_DIR)/memory.o
 TEST_LIBS = -lbsys -lbdata -lbui
 
 LDFLAGS += -lm
 
 testsrc: $(TEST_SRCS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(TEST_LIBS) $(INCLUDES)  $< -o $(TOP_DIR)/$(BIN_DIR)/$(shell echo $< | sed s/\.c//)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(TEST_LIBS) $(INCLUDES)  $< -o $(TOP_DIR)/$(BIN_DIR)/$(shell $(ECHO) $< | $(SED) s/\.c//)
 
 clean: $(TEST_SRCS)
-	@rm -f $(TOP_DIR)/$(BIN_DIR)/$(shell echo $< | sed s/\.c//)
+	@$(RM) -f $(TOP_DIR)/$(BIN_DIR)/$(shell $(ECHO) $< | sed s/\.c//)
 
 .PHONY: all clean testsrc
