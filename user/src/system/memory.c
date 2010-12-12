@@ -1,8 +1,9 @@
 /**
  * @file	memory.c
  * @author	Sunil Beta <betasam@gmail.com>
+ * @date	2005-2012
  * @brief	provide memory allocation functions.
- *
+ * @details
  * Provides support for memory allocation that can be
  * made POSIX independent with an alternate malloc 
  * algorithm that is being planned.
@@ -11,30 +12,27 @@
  *		on malloc and related functions.
  */
 
-/*
- * Copyright (c) 2005-2008 Sunil Beta Baskar <betasam@gmail.com>
- */
 
-/* Standard Includes */
+/* @remark Standard Includes : required for malloc() */
 #include <stdlib.h>
 
-/* bkit Includes */
+/* @remark bkit Includes */
 #include <ops.h>
 #include <btypes.h>
 
 #include <memory.h>
 
 static t_ptr ptr_track[ MEMORY_TRACKER_SIZE ];
-static t_u32 memory_tracker_loc = 0;
+static t_u32 memory_tracker_loc = ZERO;
 
 static t_memory_calls mc;
-static t_bool mem_init_state = 0;
-static t_u32 total_memory_allocated = 0;
+static t_bool mem_init_state = ZERO;
+static t_u32 total_memory_allocated = ZERO;
 
 /**
  * @fn void mem_init( t_memory_calls *imc )
  * @brief initialises all needed memory callbacks
- *
+ * @details
  * Initialises all the needed memory callbacks to
  * the ones provided by stdlib malloc.
  *
@@ -53,7 +51,7 @@ void mem_init( t_memory_calls *imc )
  * @fn t_ptr mem_alloc( t_u32 ui_bytes )
  * @param ui_bytes number of bytes to allocate.
  * @brief allocates memory like malloc.
- *
+ * @details
  * This function is to mimic malloc but has the 
  * capability to use a different callback for
  * allocating memory.
@@ -63,7 +61,7 @@ void mem_init( t_memory_calls *imc )
  */
 t_ptr mem_alloc( t_u32 ui_bytes )
 {
-  if( 0 == mem_init_state )
+  if( ZERO == mem_init_state )
     {
       mem_init( &mc );
     }
@@ -74,7 +72,7 @@ t_ptr mem_alloc( t_u32 ui_bytes )
       return((t_ptr)0);
     }
   memory_tracker_loc++;
-  if( memory_tracker_loc >= MEMORY_TRACKER_SIZE ) /* wrap-around */
+  if( memory_tracker_loc >= MEMORY_TRACKER_SIZE ) /* @remark wrap-around */
     {
       memory_tracker_loc = 0;
       total_memory_allocated += ui_bytes;
@@ -89,7 +87,7 @@ t_ptr mem_alloc( t_u32 ui_bytes )
  * @fn t_ptr mem_clearalloc( t_u32 ui_bytes )
  * @param ui_bytes number of bytes to allocate.
  * @brief same functionality as calloc.
- *
+ * @details
  * This function does exactly the same as calloc
  * except that the callback can be changed and
  * all allocations upto 256 are tracked for 
@@ -101,18 +99,18 @@ t_ptr mem_alloc( t_u32 ui_bytes )
 t_ptr mem_clearalloc( t_u32 ui_bytes )
 {
 
-  if( 0 == mem_init_state )
+  if( ZERO == mem_init_state )
     {
       mem_init( &mc );
     }
 
   ptr_track[ memory_tracker_loc ] = mc.calloc( 1, (size_t) ui_bytes );
-  if( (t_ptr)0 == ptr_track[ memory_tracker_loc ] )
+  if( NULL == ptr_track[ memory_tracker_loc ] )
     {
-      return((t_ptr)0);
+      return(NULL);
     }
   memory_tracker_loc++;
-  if( memory_tracker_loc >= MEMORY_TRACKER_SIZE ) /* wrap-around */
+  if( memory_tracker_loc >= MEMORY_TRACKER_SIZE ) /* @remark wrap-around */
     {
       memory_tracker_loc = 0;
       total_memory_allocated += ui_bytes;
@@ -125,7 +123,7 @@ t_ptr mem_clearalloc( t_u32 ui_bytes )
  * @fn void mem_free( t_ptr ptr_mem )
  * @param ptr_mem pointer of the location to be freed.
  * @brief same as free(ptr) with callback support 
- *
+ * @details
  * This function frees up memory similar to free() except
  * that it cannot free memory if the memory callbacks were
  * changed after allocating memory from a different 
@@ -138,12 +136,12 @@ void mem_free( t_ptr ptr_mem )
   int traverse_loc = 0;
   unsigned long ul_ptr_one, ul_ptr_two;
 
-  if( 0 == mem_init_state )
+  if( ZERO == mem_init_state )
     {
       mem_init( &mc );
     }
 
-  if( 0 == memory_tracker_loc )
+  if( ZERO == memory_tracker_loc )
     {
       memory_tracker_loc++;
     }
@@ -172,7 +170,7 @@ void mem_free( t_ptr ptr_mem )
  * @param ptr_mem pointer to memory whose allocated heapsize is
  *        to be changed.
  * @param ui_bytes new number of bytes to be allocated.
- *
+ * @details
  * This function is similar to realloc. It can also use a different
  * callback for reallocation. This is to manage memory allocation
  * better inside an application.
@@ -187,7 +185,7 @@ void mem_free( t_ptr ptr_mem )
  */
 t_ptr mem_realloc( t_ptr ptr_mem, t_u32 ui_bytes )
 {
-  if( 0 == mem_init_state )
+  if( ZERO == mem_init_state )
     {
       mem_init( &mc );
     }
@@ -199,7 +197,7 @@ t_ptr mem_realloc( t_ptr ptr_mem, t_u32 ui_bytes )
  * @fn void mem_gc( void )
  * @brief frees upto 256 memory allocations that were done
  *        using betakit's memory allocating calls.
- *
+ * @details
  * This is just to free up to a maximum of 256 memory locations
  * if they were allocated with the same kit. The purpose is
  * trivial and is to take care of memory that was not properly
@@ -211,7 +209,7 @@ void mem_gc( void )
 {
   t_u32 traverse_loc = 0;
 
-  if( 0 == mem_init_state )
+  if( ZERO == mem_init_state )
     {
       mem_init( &mc );
     }
@@ -229,7 +227,7 @@ void mem_gc( void )
  * @fn t_s32 mem_alloc_count( void )
  * @brief returns total memory allocated through mem_* so far.
  * @return memory allocated so far
- *
+ * @details
  * This is just to expose an internal variable in the library
  * through a hook. I am not very sure you can access these 
  * symbols although lint has been quite strict in teaching me
@@ -244,7 +242,7 @@ t_s32 mem_alloc_count( void )
 /**
  * @fn t_u32 mem_copy( t_ptr dest_ptr, t_ptr src_ptr, t_u32 bytes_to_copy )
  * @brief copies source to destination treating memory in bytes
- * 
+ * @detail 
  * This should be optimised to handle variables of register size.
  *
  * @return bytes copied
@@ -271,7 +269,7 @@ t_u32 mem_copy( t_ptr dest_ptr, t_ptr src_ptr, t_u32 u_bytes_to_copy )
  * @param new_calls Pointer to structure containing calls to a 
  *        memory allocator different from stdlib's malloc.
  * @brief This is to allow the use of a new memory allocator.
- * 
+ * @details
  * This is to exercise the main purpose of this memory 
  * allocation wrapper. This function allows all primary
  * memory allocation services provided by the "bsys" library
@@ -291,6 +289,7 @@ void mem_changecalls( t_memory_calls *new_calls )
   err_check = (0 != new_calls->free)   ? (t_s32)(mc.free   = new_calls->free  ) : 0 ;
   err_check = (0 != new_calls->realloc)? (t_s32)(mc.realloc= new_calls->realloc): 0 ;
 
+  return;
 }
 
-/* end of file */
+/* @remark end of file "memory.c" */

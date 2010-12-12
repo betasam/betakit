@@ -20,6 +20,7 @@
  * @fn double d_time( void )
  * @brief returns current time in microsecond precision
  * @return double value of time with microsecond precison
+ * @warning this is strictly not threadsafe
  */
 double d_time( void )
 {
@@ -37,3 +38,5 @@ double d_time( void )
 
   return( d_ftime );
 }
+
+/* @remark end of "dhry_timers.c" */
