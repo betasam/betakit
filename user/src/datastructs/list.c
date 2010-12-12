@@ -2,14 +2,14 @@
  * @file list.c
  * @brief linked list data structure abstraction
  * @author Sunil Beta <betasam@gmail.com>
- *
+ * @details
  * Provides a linked list abstraction by allowing any type of
  * nodes as long as they are expressed as pointers in memory.
  *
  * @warning This code is not threadsafe.
  */
 
-/* betakit includes */
+/* @remark betakit includes */
 #include <memory.h>
 #include <btypes.h>
 
@@ -18,7 +18,7 @@
 /**
  * @fn t_list *list_create_node( t_ptr data )
  * @brief create new list nodes
- *
+ * @details
  * Creates new linked list nodes, by allocating memory
  * and assigning data. 
  *
@@ -32,7 +32,7 @@ t_list *list_create_node( t_ptr data )
   t_s32 i_retval = 0; 
   t_list *list_node; 
 
-  list_node = 0; /* NULL node */
+  list_node = 0; /* @remark NULL node */
 
   if( 0 == data )
     {
@@ -53,7 +53,7 @@ t_list *list_create_node( t_ptr data )
 /**
  * @fn t_s32 list_add( t_list *head, t_list *node )
  * @brief adds a node to an existing list.
- *
+ * @details
  * Adds nodes to an existing list pointed by head
  * ensuring that the new node and head are existing 
  * however not considerate of the data contained in
@@ -101,7 +101,7 @@ t_s32 list_add( t_list *head, t_list *node )
 /**
  * @fn t_s32 list_del(t_list *head, t_list *node )
  * @brief deletes a node from a list.
- *
+ * @details
  * Deletes a given node from a list if the node is
  * present in the list pointed by head. This can
  * take care of circular lists also.
@@ -149,7 +149,7 @@ t_s32 list_del(t_list *head, t_list *node )
 
   if( node == head->next )
     {
-      head->next = node->next; /* delink node */
+      head->next = node->next; /* @remark delink node */
     }
 
  del_exit:
@@ -158,9 +158,10 @@ t_s32 list_del(t_list *head, t_list *node )
 }
 
 /**
- * @fn t_list *list_find( t_list *head, t_ptr data_to_find, t_s32 (*data_cmp)( t_ptr data_in_list, t_ptr data_sought ) )
+ * @fn t_list *list_find( t_list *head, t_ptr data_to_find, 
+                          t_s32 (*data_cmp)( t_ptr data_in_list, t_ptr data_sought ) )
  * @brief Finds a node based on the data found in the list.
- *
+ * @details
  * Searches a linked list for a node based on the data. The data 
  * comparison is done by a callback function as this code is not
  * aware of the nature of the data present within the list. This
@@ -186,7 +187,7 @@ t_list *list_find( t_list *head, t_ptr data_to_find, t_s32 (*data_cmp)( t_ptr da
  
   first = head;
   
-  /* linear search */
+  /* @remark linear search */
   while( head && (head->next != first) && (head->next != head) )
     {
       if( 0 != head->data )
@@ -209,7 +210,7 @@ t_list *list_find( t_list *head, t_ptr data_to_find, t_s32 (*data_cmp)( t_ptr da
  * @param node the node to be freed.
  * @brief Frees memory from a single node in the list
  * @see mem_free
- * 
+ * @details
  * Frees memory used up by a single node using a
  * dynamic memory management tool.
  *
@@ -236,7 +237,7 @@ void list_clean( t_list *node )
  * @brief Destroys a linked list from head leaving
  *        the head of the list.
  * @see list_clean
- *
+ * @details
  * Cleans up an entire linked list except for its
  * Head node. The Head node can be cleaned up later
  * by calling list_clean.
@@ -273,3 +274,5 @@ t_s32 list_empty( t_list *head )
  empty_exit:
   return i_retval;
 }
+
+/* @remark end of file "list.c" */
