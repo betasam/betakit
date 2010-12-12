@@ -6,14 +6,18 @@
 #
 # CHANGELOG
 #	8-DEC-2010	Fixed make -C issue
+#
+# example:
+#	$ make NOAUTO=1 all
+# (or)  $ make all
+
 
 # toolchain
-
+ARCH  =
 CROSS =
-CC = $(CROSS)gcc
-AR = $(CROSS)ar
-LD = $(CROSS)ld
-
+CC    = $(CROSS)gcc
+AR    = $(CROSS)ar
+LD    = $(CROSS)ld
 
 ifeq ($(NOAUTO),1)
 # system tools
@@ -48,6 +52,7 @@ OBJ_DIR := obj
 BIN_DIR := bin
 LIB_DIR := lib
 DOC_DIR := doc
+PDF_DIR := latex
 
 # toolchain options
 CFLAGS = -O2 -Wall
@@ -56,8 +61,10 @@ LIBFLAGS = -fPIC
 SHAREDLIB = -shared
 INCLUDES = -I$(TOP_DIR)/$(INCLUDE_DIR)
 DOXYFILE = $(TOP_DIR)/Doxyfile
+TAGSFILE = $(TOP_DIR)/TAGS
 MAKE_FLAGS := -j1
-CTAGS_OPTS = -f $(TOP_DIR)/TAGS -e -a
+CTAGS_OPTS = -f $(TAGSFILE) -e -a
+PDF_TARGET := pdf
 
 # version information
 VERSION = 1
@@ -75,13 +82,17 @@ clean:
 	for D in $(SRC_SUBDIRS); do \
 	 $(MAKE) -C $(TOP_DIR)/$(SRC_DIR)/$$D clean; \
 	done
-	@$(RM) -rf $(TOP_DIR)/$(DOC_DIR)/*
-	@$(RM) -f $(TOP_DIR)/TAGS
-	@$(RM) -f $(TOP_DIR)/tags
-
+	if [ -d $(TOP_DIR)/$(DOC_DIR)/ ]; then \
+	 $(RM) -rf $(TOP_DIR)/$(DOC_DIR)/*; \
+	 $(RM) -f $(TAGSFILE); \
+	 $(RM) -f $(TOP_DIR)/tags; \
+	fi 
+#
 # BETA!
 # explicitly specifying make -C target=all 
 # to avoid shell variables clobbering
+# refer: ruleset for target: 'clean'
+#
 $(SRC_SUBDIRS):
 	$(MAKE) $(MAKE_FLAGS) -C $(TOP_DIR)/$(SRC_DIR)/$@ all
 
@@ -90,6 +101,7 @@ doc:
 	 $(MKDIR) $(TOP_DIR)/$(DOC_DIR) -p; \
 	 $(DOXYGEN) $(DOXYFILE); \
 	fi
+	$(MAKE) -C $(TOP_DIR)/$(DOC_DIR)/$(PDF_DIR) $(PDF_TARGET)
 
 build-dirs:
 	@$(MKDIR) -p $(TOP_DIR)/$(OBJ_DIR) $(TOP_DIR)/$(BIN_DIR) $(TOP_DIR)/$(LIB_DIR) $(TOP_DIR)/$(DOC_DIR)
