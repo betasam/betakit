@@ -4,25 +4,25 @@
  *
  * Computes system dhrystone MIPS on the basis of 
  * Algorithm v2.1. This was written to simplify
- * extremely portable code to remain portable 
+ * extremely archaic code to remain portable 
  * exclusively on linux systems. Many options are
  * gcc friendly and the results too will be.
  */
 
-/** standard includes */
+/** @remark standard includes */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-/** betakit includes */
+/** @remark betakit includes */
 #include <memory.h>
 #include <dhrystone.h>
 #include <ops.h>
 
-/* more macro definitions */
+/* @remark more macro definitions */
 #define		MIN_TIME	2 /* in seconds */
 
-/* global variables */
+/* @remark global variables */
 record_ptr	ptr_glob, ptr_next_glob, next_ptr_glob;
 int		int_glob;
 boolean		bool_glob;
@@ -34,10 +34,10 @@ int		arr_2_glob[INTARRAYSIZE][INTARRAYSIZE];
 double		begin_time, end_time, user_time;
 double		uSecs, dhrystones_per_second, vax_mips;
 
-/* constants */
+/* @remark constants */
 const char reg_define[] = "Register operands used.";
 
-/* function (forward) declaration */
+/* @remark function declaration */
 identenum	func_1 (capital_letter, capital_letter);
 boolean		func_2 (str_30, str_30);
 boolean		func_3 (identenum);
@@ -52,14 +52,14 @@ void		proc_7 (one_fifty , one_fifty , one_fifty*);
 void		Proc_8 (array_1_dim , array_2_dim , int, int);
 
 
-void proc_1 (_REGISTER_ record_ptr ptr_val_par)     /* executed once */
+void proc_1 (_REGISTER_ record_ptr ptr_val_par)     /* @remark executed once */
 {
   _REGISTER_ record_ptr next_record = ptr_val_par->ptr_comp;
                                         /* == Ptr_Glob_Next */
   /* Local variable, initialized with Ptr_Val_Par->Ptr_Comp,    */
   /* corresponds to "rename" in Ada, "with" in Pascal           */
 
-  _OPS_ASSIGN_S(*ptr_val_par->ptr_comp, *ptr_glob);
+  _OPS_ASSIGN_SZ(*ptr_val_par->ptr_comp, *ptr_glob);
 
   ptr_val_par->variant.var_1.int_comp = 5;
   next_record->variant.var_1.int_comp = ptr_val_par->variant.var_1.int_comp;
@@ -85,7 +85,7 @@ void proc_1 (_REGISTER_ record_ptr ptr_val_par)     /* executed once */
     }
   else
     {
-      _OPS_ASSIGN_S(*ptr_val_par, *ptr_val_par->ptr_comp);
+      _OPS_ASSIGN_SZ(*ptr_val_par, *ptr_val_par->ptr_comp);
     }
 
   return; /* proc_1 */
@@ -267,8 +267,8 @@ identenum func_1 (capital_letter ch_1_par_val, capital_letter ch_2_par_val)
 
 boolean func_2 (str_30 str_1_par_ref, str_30 str_2_par_ref)
     /* executed once */
-    /* Str_1_Par_Ref == "DHRYSTONE PROGRAM, 1'ST STRING" */
-    /* Str_2_Par_Ref == "DHRYSTONE PROGRAM, 2'ND STRING" */
+    /* Str_1_Par_Ref == "DHRYSTONE PROGRAM, 1ST STRING" */
+    /* Str_2_Par_Ref == "DHRYSTONE PROGRAM, 2ND STRING" */
 {
   _REGISTER_ one_thirty		int_loc;
   capital_letter		ch_loc = 0;
@@ -335,16 +335,16 @@ boolean func_3 (identenum enum_par_val)
 } 
 
 
-int calculate_dhrystone (double time, dhrystone_result_t *results)
+t_s32 calculate_dhrystone (t_d64 time, t_dhrystone_result *results)
   /* main program, corresponds to procedures        */
   /* Main and Proc_0 in the Ada version             */
 {
 
-  _REGISTER_   one_fifty       int_2_loc = 0;
+  _REGISTER_   one_fifty       int_2_loc = ZERO;
   _REGISTER_   char            ch_index;
   _REGISTER_   int             run_index;
   _REGISTER_   int             number_of_runs;
-  _REGISTER_   unsigned long   total_runs = 0;
+  _REGISTER_   unsigned long   total_runs = ZERO;
 
   one_fifty       int_1_loc;
   one_fifty       int_3_loc;
@@ -364,7 +364,7 @@ int calculate_dhrystone (double time, dhrystone_result_t *results)
 
   strcpy (ptr_glob->variant.var_1.str_comp,
           "DHRYSTONE PROGRAM, SOME STRING");
-  strcpy (str_1_loc, "DHRYSTONE PROGRAM, 1'ST STRING");
+  strcpy (str_1_loc, "DHRYSTONE PROGRAM, 1ST STRING");
 
   arr_2_glob [8][7] = 10;
         /* Was missing in published program. Without this statement,    */
@@ -387,7 +387,7 @@ int calculate_dhrystone (double time, dhrystone_result_t *results)
     int_1_loc = 2;
     int_2_loc = 3;
 
-    strcpy (str_2_loc, "DHRYSTONE PROGRAM, 2'ND STRING");
+    strcpy (str_2_loc, "DHRYSTONE PROGRAM, 2ND STRING");
 
     enum_loc	= ident_2;
     bool_glob	= ! func_2 (str_1_loc, str_2_loc);
@@ -409,7 +409,7 @@ int calculate_dhrystone (double time, dhrystone_result_t *results)
 	if (enum_loc == func_1 (ch_index, 'C'))
 	  {
 	    proc_6 (ident_1, &enum_loc);
-	    strcpy (str_2_loc, "DHRYSTONE PROGRAM, 3'RD STRING");
+	    strcpy (str_2_loc, "DHRYSTONE PROGRAM, 3RD STRING");
 	    int_2_loc = run_index;
 	    int_glob = run_index;
 	  }
@@ -434,7 +434,7 @@ int calculate_dhrystone (double time, dhrystone_result_t *results)
   {
     uSecs = user_time * uSecs_per_Second / (double) total_runs;
     dhrystones_per_second = (double) total_runs / user_time;
-    vax_mips = dhrystones_per_second / 1757.0;
+    vax_mips = dhrystones_per_second / VAX_DHRYSTONES_PER_SEC;
     
     results->dhrystones = dhrystones_per_second;
     results->vaxmips    = vax_mips;
@@ -446,5 +446,7 @@ int calculate_dhrystone (double time, dhrystone_result_t *results)
     return(0);
   }
 
-  return(-1); /* This Never Executes {:Evil Laughter:}*/
+  return(-1); /* This line is never executed */
 }
+
+/* @remark end of file "dhrystone.c" */
