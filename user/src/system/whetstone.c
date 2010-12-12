@@ -10,11 +10,13 @@
  * capability of a platform in a deterministic fashion.
  */
 
+/* @remark standard libary include */
 #include <math.h>
 
+/* @remark betakit includes */
 #include <whetstone.h>
 
-/* global variables */
+/* @remark global variables */
 double t, t1, t2, e1[5];
 int j, k, l;
 
@@ -91,7 +93,7 @@ inline void wfunc_2( double* x1, double* x2, double* x3, double* x4, long* n1 )
   return; /* wfunc_2 */
 }
 
-int calculate_whetstones( int time, whetstone_result_t* wresults )
+t_s32 calculate_whetstones( int time, t_whetstone_result* wresults )
 {
 	long i;
 	long n1, n2, n3, n4, n6, n7, n8, n9, n10, n11;
@@ -117,7 +119,7 @@ int calculate_whetstones( int time, whetstone_result_t* wresults )
 	total_loops += loopstart;
 
 	{
-	  t  = .499975;
+	  t  = 0.499975;
 	  t1 = 0.50025;
 	  t2 = 2.0;
 	}
@@ -263,13 +265,15 @@ int calculate_whetstones( int time, whetstone_result_t* wresults )
 	  }
 
 
-	mips = ((100 * total_loops * ii)/ (float) user_time)/1000.0 ;
+	mips = ((100 * total_loops * ii)/ (float) user_time)/WLOOPS_PER_MIPS;
 	time_per_loop = user_time / (float) (total_loops);
 	
 	wresults->real_time_taken = user_time;
 	wresults->whetstones = mips;
-	wresults->loop_msecs = time_per_loop * 1000; /* check */
+	wresults->loop_msecs = time_per_loop * (t_u32)(WLOOPS_PER_MIPS); /* check */
 	wresults->total_loops = total_loops;
 
 	return(0);
 }
+
+/* @remark end of file "whetstone.c" */
