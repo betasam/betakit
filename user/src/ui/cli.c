@@ -1,23 +1,36 @@
 /**
- * @Filex cli.c
+ * @file cli.c command line interface
  * @author Sunil Beta Baskar <betasam@gmail.com>
+ * @date 2005-2009
  * @brief Command Line Interface Abstraction
+ *
+ * @todo  Destructor for Menu Structure 
+ * @todo  Abstract support for sub-menus 
  */
 
-/* standard includes */
+
+
+/** @remark standard includes */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
-/* betakit includes */
+/** @remark betakit includes */
 #include <btypes.h>
 #include <memory.h>
 #include <list.h>
 
 #include <cli.h>
 
-static char cli_prompt[32];
 
+static char cli_prompt[BKIT_SZLEN_DEFAULT];
+
+/**
+ * @fn t_s32 cli_set_prompt( t_string new_prompt )
+ * @brief set the prompt for the command-line-environment
+ * @param new_prompt - pointer to a SZ string 
+ * @return 0 on success, -ve on error
+ */
 t_s32 cli_set_prompt( t_string new_prompt )
 {
   t_s32 retval;
@@ -34,14 +47,19 @@ t_s32 cli_set_prompt( t_string new_prompt )
   return( retval );
 }
 
-menu_t *cli_menu_init( void )
+/**
+ * @fn t_menu *cli_menu_init(void)
+ * @brief initialise a menu
+ * @return pointer on success, NULL on failure
+ */
+t_menu *cli_menu_init( void )
 {
   t_s32 retval = -1;
-  menu_t *menu_ptr;
+  t_menu *menu_ptr;
 
-  menu_ptr = (menu_t*) mem_alloc( sizeof(struct menu_s) );
+  menu_ptr = (t_menu*) mem_alloc( sizeof(t_menu) );
 
-  if( 0 == menu_ptr ) 
+  if( NULL == menu_ptr ) 
     {
       return(NULL);
     }
@@ -50,7 +68,7 @@ menu_t *cli_menu_init( void )
   menu_ptr->menu_choices = 0;
   menu_ptr->last_item = 0;
   menu_ptr->current_item = 0;
-  menu_ptr->menu_title = (t_string)(mem_alloc( 100 ));
+  menu_ptr->menu_title = (t_string)(mem_alloc( BKIT_SZLEN_DEFAULT ));
 
   strcpy( menu_ptr->menu_title, (t_string)" Main Menu ");
 
@@ -59,7 +77,14 @@ menu_t *cli_menu_init( void )
   return( menu_ptr );  
 }
 
-t_s32 cli_menu_title( menu_t *menu_ptr, t_string new_title )
+/**
+ * @fn cli_menu_title( t_menu *menu_ptr, t_string new_title )
+ * @brief set the menu title
+ * @param menu_ptr pointer to the menu for setting title
+ * @param new_title SZ string containing title 
+ * @return 0 on success, -ve on failure
+ */
+t_s32 cli_menu_title( t_menu *menu_ptr, t_string new_title )
 {
   t_s32 retval = -2;
 
@@ -81,7 +106,14 @@ t_s32 cli_menu_title( menu_t *menu_ptr, t_string new_title )
   return( retval );
 }
 
-t_s32 cli_menu_additem( menu_t *menu_ptr, t_string new_item )
+/**
+ * @fn cli_menu_additem( t_menu_ptr menu_ptr, t_string new_item )
+ * @brief add an item to the menu for the CLI
+ * @param menu_ptr pointer to cli menu
+ * @param new_item SZ string with entry to be added to menu
+ * @return 0 on success, -ve on failure
+ */
+t_s32 cli_menu_additem( t_menu_ptr menu_ptr, t_string new_item )
 {
   t_list_ptr cur_menu_item = (t_list_ptr)0;
   t_list_ptr new_menu_item = (t_list_ptr)0;
@@ -131,7 +163,14 @@ t_s32 cli_menu_additem( menu_t *menu_ptr, t_string new_item )
 }
 
 
-t_s32 cli_menu_addlist( menu_t* menu_ptr, t_string *menuitem_list, t_s32 count )
+/**
+ * @fn cli_menu_dadlist( t_menu_ptr menu_ptr, t_str *menuitem_list, t_s32 count )
+ * @param menu_ptr - pointer to menu
+ * @param menuitem_list - array of SZ strings
+ * @param count - number of menu items
+ * @return 0 on success, -ve on failure
+ */
+t_s32 cli_menu_addlist( t_menu_ptr menu_ptr, t_string *menuitem_list, t_s32 count )
 {
   t_s32 curitem;
   t_s32 retval = 0;
@@ -159,11 +198,18 @@ t_s32 cli_menu_addlist( menu_t* menu_ptr, t_string *menuitem_list, t_s32 count )
 }
 
 
-t_s32 cli_menu_callback(menu_t *menu_ptr, t_s32 (*menu_callback)(t_s32 choice) )
+/**
+ * @fn cli_menu_callback
+ * @brief add callback function to menu 
+ * @param menu_ptr - pointer to menu being referenced
+ * @param menu_callback - function pointer that processes callbacks
+ * @return 0 on success, -ve on failure
+ */
+t_s32 cli_menu_callback(t_menu *menu_ptr, t_s32 (*menu_callback)(t_s32 choice) )
 {
   t_s32 retval = -1;
   
-  if( 0 == menu_ptr )
+  if( NULL == menu_ptr )
     {
       return( retval );
     }
@@ -174,16 +220,24 @@ t_s32 cli_menu_callback(menu_t *menu_ptr, t_s32 (*menu_callback)(t_s32 choice) )
   return( retval );
 }
 
-t_s32 cli_show_menu( menu_t *menu_ptr )
+
+/**
+ * @fn cli_show_menu( t_menu *menu_ptr )
+ * @brief displays the menu
+ * @param menu_ptr - pointer to an initialised menu
+ * @remark this does not wait for user input
+ * @return 0 on success, -ve on failure
+ */
+t_s32 cli_show_menu( t_menu *menu_ptr )
 {
   t_s32 retval = -3;
   t_s32 curitem;
   t_s32 count;
   t_list_ptr menuitem_ptr;
 
-  menuitem_ptr = 0;
+  menuitem_ptr = NULL;
   
-  if( 0 == menu_ptr )
+  if( NULL == menu_ptr )
     {
       return( retval );
     }
@@ -200,13 +254,14 @@ t_s32 cli_show_menu( menu_t *menu_ptr )
 
   menuitem_ptr = menu_ptr->menu_choices;
 
-  if( 0 == menuitem_ptr )
+  if( NULL == menuitem_ptr )
     {
       return(retval);
     }
   retval++;
 
-  printf("-=< %s >=-\n\n", menu_ptr->menu_title );
+  printf("%s %s %s\n\n", BK_MENU_HEADER_PRE, menu_ptr->menu_title,
+	 BK_MENU_HEADER_AFT);
 
   for( curitem = 0; curitem < count; curitem++ )
     {
@@ -222,45 +277,57 @@ t_s32 cli_show_menu( menu_t *menu_ptr )
   
 }
 
-
-t_s32 cli_menu_user( menu_t* menu_ptr )
+/**
+ * @fn cli_menu_user( t_menu *menu_ptr )
+ * @brief display menu and wait on user input
+ * @param menu_ptr - pointer of initialised menu
+ * @return 0 on success, -ve on failure
+ * @remark this will wait for user input
+ */
+t_s32 cli_menu_user( t_menu* menu_ptr )
 {
   t_s32 retval;
   t_byte response[255] = "";
   t_s32 choice;
-  t_s32 action = 0;
+  t_s32 action = ZERO;
 
   retval = -3;
 
-  if( 0 == menu_ptr )
+  if( NULL == menu_ptr )
     {
       return( retval );
     }
 
-  retval++;
+  retval++;			/* retval = -2 */
   
   if( 0 == menu_ptr->menu_count )
     {
       return( retval );
     }
 
-  retval++;
+  retval++;			/* retval = =1 */
 
-  if( 0 == menu_ptr->menu_action )
+  if( NULL == menu_ptr->menu_action )
     {
       return( retval );
     }
 
-  retval++;
+  retval++;			/* retval = 0 */
 
-  while( (action != CLI_EXIT_ACTION) && (0 != (strcmp( (char*) response, (char*)CLI_EXIT_STRING ))) )
+  while( (action != CLI_EXIT_ACTION) && 
+	 (0 != (strcmp( (t_str) response, (t_str)CLI_EXIT_STRING ))) )
     {
       cli_show_menu( menu_ptr );
       printf("\n");
       printf("%s", cli_prompt );
-      scanf("%s", (char*)response );
-      choice = atoi( (char*)response );
-      if( 0 != choice )
+      /** @todo find a better alternative to scanf  */
+      if( EOF == scanf("%s", (t_str) response ) ) 
+	{
+	  printf("cli: error reading user input.\n");
+	  return(retval = -4);
+	}
+      choice = atoi( (t_str) response );
+      if( ZERO != choice )
 	{
 	  action = menu_ptr->menu_action( choice );
 	}
@@ -269,8 +336,4 @@ t_s32 cli_menu_user( menu_t* menu_ptr )
   return( retval );
 }
 
-/*
- * TODO
- * 1. Destructor for Menu Structure
- * 2. Abstract support for sub-menus
- */
+/** @remark end of file "cli.c" */
