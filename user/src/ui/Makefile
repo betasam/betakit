@@ -6,8 +6,8 @@
 #
 
 
-UI_SRCS = cli.c
-INTERNAL_OBJS = cli.o
+UI_SRCS = cli.c cli_parser.c
+INTERNAL_OBJS = cli.o cli_parser.o
 
 UI_OBJS = $(shell for f in $(INTERNAL_OBJS); do echo $(TOP_DIR)/$(OBJ_DIR)/$$f; done)
 
