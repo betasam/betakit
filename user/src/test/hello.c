@@ -20,6 +20,8 @@
 #include <ops.h>
 #include <btypes.h>
 
+#include <berror.h>
+
 #include <memory.h>
 #include <dhrystone.h>
 #include <whetstone.h>
@@ -28,13 +30,15 @@
 #include <stack.h>
 #include <queue.h>
 #include <number.h>
+#include <bstring.h>
 
 #include <cli.h>
 
-#define MAX_MENU_ITEMS		7
 
 #define	SZ_BETAKIT_PROMPT	"BetaKit> "
 #define SZ_BETAKIT_HELLO	"Hello Betakit User!"
+
+#define MAX_MENU_ITEMS		8
 
 t_string menu_items[MAX_MENU_ITEMS] = {
   "Calculate Dhrystones",
@@ -43,6 +47,7 @@ t_string menu_items[MAX_MENU_ITEMS] = {
   "Test Stack",
   "Test Queue",
   "Test Numbers",
+  "Test Strings",
   "Exit Menu"
 };
 
@@ -55,12 +60,66 @@ t_string menu_items[MAX_MENU_ITEMS] = {
  */
 void say_hello( void )
 {
-  t_str str_hello;
-  str_hello = (t_str) mem_alloc(BKIT_SZLEN_DEFAULT);
-  sprintf( str_hello, "%s", SZ_BETAKIT_HELLO);
+  t_u8  stringalloc[BERR_SZ_LEN];
+  t_str str_hello, str_ptr;
+
+  str_ptr     = (t_str) stringalloc;
+  str_hello   = (t_str) mem_alloc(BERR_SZ_LEN);
+
+  bk_strcpy( str_hello, SZ_BETAKIT_HELLO );
+  bk_strcpy( str_ptr,   (const t_str)str_hello );
+
   printf( "Betakit says %s\n", str_hello );
-  printf( "Betakit: Bye!\n");
-  mem_free( (t_ptr)str_hello );
+  printf( "Betakit: Bye!\n" );
+  printf( "Betakit:(\"%s\") \n", str_ptr );
+
+  mem_free( str_hello );
+  return;
+}
+
+
+/**
+ * @fn void test_strings(void)
+ * @brief test string functions in bstring.h
+ */
+void test_strings( void )
+{
+  t_str str_one, str_two, str_num;
+  t_s32 i_strlen;
+  t_u32 u_num = BK_NUM_TEST;
+
+  str_one = (t_str) mem_alloc( BK_SZ_LEN );
+  str_two = (t_str) mem_alloc( BK_SZ_LEN );
+  str_num = (t_str) mem_alloc( BK_SZ_LEN );
+  
+  bk_strcpy( str_one, SZ_BETAKIT_HELLO );
+  bk_strrev( str_two, str_one );
+  bk_ultostr( u_num, str_num );
+
+  i_strlen = bk_strlen( str_one );
+
+  printf("%s: string[1] = (\"%s\")\n",   __FUNCTION__, str_one );
+  printf("%s: string[2] = (\"%s\")\n",   __FUNCTION__, str_two );
+  printf("%s: num = %u  string = \"%s\"\n", __FUNCTION__, u_num, str_num );
+  printf("%s: strlen(string[1]) = %d\n", __FUNCTION__, i_strlen );
+
+  bk_tolower( str_one );
+  bk_toupper( str_two );
+
+  printf("%s: string[1] = tolower():\"%s\" string[2] = toupper():\"%s\"\n", 
+	 __FUNCTION__, str_one, str_two );
+
+
+  bk_atbash( str_one );
+  printf("%s: atbash string: \"%s\"\n", __FUNCTION__, str_one );
+
+  bk_trstr( str_two, 2 );
+  printf("%s: rot2 string: \"%s\"\n", __FUNCTION__, str_two );
+
+  mem_free( str_one );
+  mem_free( str_num );
+  mem_free( str_two );
+
   return;
 }
 
@@ -202,7 +261,7 @@ void test_number( void )
 /**
  * @fn void measure_dhrystones( void )
  * @brief measure dhrystone MIPS
- * tests dhrystone MIPS C/2.1 algorithm implementation
+ * @remark tests dhrystone MIPS C/2.1 algorithm implementation
  * @see dhrystone.c
  */
 void measure_dhrystones( void )
@@ -218,7 +277,7 @@ void measure_dhrystones( void )
 /**
  * @fn void measure_whetstones( void )
  * @brief measures whetstones per second 
- * demonstrates whetstone measurment algorithm
+ * @remark demonstrates whetstone measurment algorithm
  * @see whetstone.c
  */
 void measure_whetstones( void )
@@ -259,19 +318,31 @@ t_s32 hello_menu( t_s32 choice )
       {
 	say_hello();
 	retval = choice;
-	break;
       }
+      break;
     case 4:
+      {
       	test_stack();
 	retval = choice;
-	break;
+      }
+      break;
     case 5:
-      test_queue();
-      retval = choice;
+      {
+	test_queue();
+	retval = choice;
+      }
       break;
     case 6:
-      test_number();
-      retval = choice;
+      {
+	test_number();
+	retval = choice;
+      }
+      break;
+    case 7:
+      {
+	test_strings();
+	retval = choice;
+      }
       break;
     case MAX_MENU_ITEMS:
       {
@@ -280,18 +351,25 @@ t_s32 hello_menu( t_s32 choice )
       }
     default:
       printf("%s: invalid choice\n", __FUNCTION__ );
-    }
+
+    } /* switch( choice ) */
+
   return( retval );
 }
 
 
 /**
  * @fn int main(void)
- * @brief demonstrates CLI capabilities of Betakit
+ * @brief demonstrates CLI and error logging capabilities
+ * @return 0 always
+ * @remark check /tmp/berror.log for test error posts
  */
 int main( void )
 {
   t_menu_ptr main_menu;
+  t_s32 tmp;
+
+  _bk_errlog_init( BK_STDERR );
 
   main_menu = cli_menu_init();
 
@@ -300,7 +378,15 @@ int main( void )
   cli_set_prompt((t_str)SZ_BETAKIT_PROMPT);
 
   cli_menu_user( main_menu );
- 
+
+
+  if( 0 > (tmp =_bk_errlog_flush()) )
+    {
+      printf("%s: oops _bk_errlog_flush() failed with -0x%02x\n", __FUNCTION__, -tmp );
+    }
+
+  _bk_errlog_free();
+
   mem_gc();			/* @remark garbage collect */
   return(0);
 }
