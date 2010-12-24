@@ -1,0 +1,16 @@
+#
+# BetaKit (build)
+#
+
+README
+
+Date: 23-Dec-2010
+
+This directory has scripts used for configuration and
+building betakit applications. The intention is to use
+linux/kernel Config style configuration files to 
+configure the kit for use and deployment. Such a system
+would allow easy use/re-use of kernel source trees for
+target builds.
+
+
