@@ -59,6 +59,7 @@ t_menu *cli_menu_init( void )
 
   menu_ptr = (t_menu*) mem_alloc( sizeof(t_menu) );
 
+
   if( NULL == menu_ptr ) 
     {
       return(NULL);
