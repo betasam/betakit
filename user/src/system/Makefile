@@ -12,8 +12,8 @@ DHRYSTONE_OBJS := dhry_timers.o dhrystone.o
 WHETSTONE_SRCS := dhry_timers.c whetstone.c
 WHETSTONE_OBJS := whetstone.o
 
-SYSTEM_SRCS    := memory.c 
-INTERNAL_OBJS  := memory.o 
+SYSTEM_SRCS    := memory.c berror.c
+INTERNAL_OBJS  := memory.o berror.o
 
 # Dhrystone Support
 SYSTEM_SRCS    += $(DHRYSTONE_SRCS)
