@@ -1,0 +1,18 @@
+#!/bin/false
+# .bconfig file 
+# configuration file for betaking
+
+CONFIG BK_TEST_HELLO
+       bool "Test Program Hello"
+       default n
+       depends on BK_SYS_MEMORY
+       depends on BK_USERINTERFACE
+       depends on BK_TESTSETUP
+
+CONFIG BK_TEST_ANACRACK	
+       bool "Anagram Cracker Demo"
+       default n
+       depends on BK_SYS_MEMORY 
+       depends on BK_USERINTERFACE && BK_TESTSETUP
+
+# end of config file

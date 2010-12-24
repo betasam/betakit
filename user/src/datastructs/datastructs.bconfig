@@ -1,0 +1,41 @@
+#!/bin/false
+# .bconfig file 
+# configuration file for betaking
+
+config BK_DS_STACK
+       bool "Stack manipulation support"
+       depends on BK_DSTRUCTS
+       depends on BK_SYS_MEMORY
+       default y
+
+config BK_DS_QUEUE
+       bool "Queue manipulation support"
+       depends on BK_DSTRUCTS
+       depends on BK_SYS_MEMORY
+       default y
+
+CONFIG BK_DS_LIST
+       bool "Linked List Support"
+       depends on BK_DSTRUCTS
+       depends on BK_SYS_MEMORY
+       default y
+
+CONFIG BK_DS_STRING
+       bool "String Manipulation Support"
+       depends on BK_DSTRUCTS
+       depends on BK_SYS_MEMORY
+       default y
+
+config BK_DS_NUMBER
+       bool "Integer Manipulation Support"
+       depends on BK_DSTRUCTS
+       depends on BK_SYS_MEMORY
+       default y
+
+config BK_DS_GRAPH
+       bool "Graph manipulation support"
+       depends on BK_DSTRUCTS
+       depends on BK_SYS_MEMORY
+       default n
+
+# end of config file

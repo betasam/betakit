@@ -1,0 +1,25 @@
+#!/bin/false
+# .bconfig file 
+# configuration file for betaking
+
+CONFIG BK_SYS_MEMORY
+       bool "Betakit Userspace memory monitor"
+       default y
+       depends on BK_SYSTEM
+
+CONFIG BK_SYS_ERRORHANDLER
+       bool "Betakit Error handler"
+       default y
+       depends on BK_SYS_MEMORY
+
+CONFIG BK_SYS_DHRYSTONES
+       bool "Betakit Dhrystones module"
+       default n
+       depends on BK_SYS_MEMORY
+
+CONFIG BK_SYS_WHETSTONES
+       bool "Betakit Whetstones Module"
+       default n
+       depends on BK_SYS_MEMORY
+
+# end of config file
