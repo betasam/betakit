@@ -7,8 +7,8 @@
 
 all: libbdata
 
-DATASTRUCT_SRCS = list.c graph.c number.c stack.c queue.c 
-INTERNAL_OBJS   = list.o graph.o number.o stack.o queue.o
+DATASTRUCT_SRCS = list.c graph.c number.c stack.c queue.c bstring.c
+INTERNAL_OBJS   = list.o graph.o number.o stack.o queue.o bstring.o
 DATASTRUCT_OBJS = $(shell for f in $(INTERNAL_OBJS); do echo $(TOP_DIR)/$(OBJ_DIR)/$$f; done)
 
 DATASTRUCT_LIB = libbdata.so
