@@ -1,0 +1,39 @@
+#!/bin/false
+# .bconfig file 
+# configuration file for betaking
+
+# TOPDIR = build/
+# PEER   = src/
+
+MAINMENU "Betakit Userspace"
+
+CONFIG BK_SYSTEM
+       bool "Betakit System Calls"
+       default y
+
+INCLUDE "../src/system/system.bconfig"
+
+CONFIG BK_DSTRUCTS
+       bool "Betakit Data Structures"
+       default y
+
+INCLUDE "../src/datastructs/datastructs.bconfig"
+
+CONFIG BK_USERINTERFACE
+       bool "Betakit User Interface Support"
+       depends on BK_SYS_MEMORY
+       default y
+
+INCLUDE "../src/ui/ui.bconfig"
+
+CONFIG BK_TESTSETUP
+       bool "Betakit Test Setup Support"
+       default n
+
+INCLUDE "../src/test/test.bconfig"
+
+CONFIG BK_DEBUG_MODE
+       bool "Debug Betakit"
+       default n
+
+# end of root config file
