@@ -14,6 +14,9 @@
 #include <btypes.h>
 #include <list.h>
 
+#define BK_MENU_HEADER_PRE	"-=[ "
+#define BK_MENU_HEADER_AFT	" ]=-"
+
 /* data structure definitions */
 struct menu_s {
 
@@ -43,12 +46,12 @@ struct token_s {
 };
 
 /* type definitions based on structures defined */
-typedef struct menu_s menu_t;
-typedef menu_t *menu_t_ptr;
-typedef struct cli_s cli_t;
-typedef cli_t *cli_t_ptr;
-typedef struct token_s token_t;
-typedef token_t *token_t_ptr;
+typedef struct menu_s t_menu;
+typedef t_menu* t_menu_ptr;
+typedef struct cli_s t_cli;
+typedef t_cli* t_cli_ptr;
+typedef struct token_s t_token;
+typedef t_token* t_token_ptr;
 
 /* macro definitions */
 #define CLI_MENUITEM_SIZE	100
@@ -71,12 +74,12 @@ typedef token_t *token_t_ptr;
 
 /* function declarations */
 t_s32 cli_set_prompt( t_string new_prompt );
-menu_t *cli_menu_init( void );
-t_s32 cli_menu_title( menu_t *menu_ptr, t_string new_title );
-t_s32 cli_menu_additem( menu_t *menu_ptr, t_string new_item );
-t_s32 cli_menu_addlist( menu_t* menu_ptr, t_string *menuitem_list, t_s32 count );
-t_s32 cli_menu_callback(menu_t *menu_ptr, t_s32 (*menu_callback)(t_s32 choice) );
-t_s32 cli_show_menu( menu_t *menu_ptr );
-t_s32 cli_menu_user( menu_t* menu_ptr );
+t_menu *cli_menu_init( void );
+t_s32 cli_t_menuitle( t_menu_ptr menu_ptr, t_string new_title );
+t_s32 cli_menu_additem( t_menu_ptr menu_ptr, t_string new_item );
+t_s32 cli_menu_addlist( t_menu_ptr menu_ptr, t_string *menuitem_list, t_s32 count );
+t_s32 cli_menu_callback(t_menu_ptr menu_ptr, t_s32 (*menu_callback)(t_s32 choice) );
+t_s32 cli_show_menu( t_menu_ptr menu_ptr );
+t_s32 cli_menu_user( t_menu_ptr menu_ptr );
 
 #endif /* _CLI_H_INC */
