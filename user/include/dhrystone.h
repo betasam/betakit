@@ -15,6 +15,10 @@
 #define FALSE			0
 #define INTARRAYSIZE		50
 #define CHRARRAYSIZE		31
+#define VAX_DHRYSTONES_PER_SEC	1757.0
+
+/* Betakit Defaults */
+#define DHRYSTONE_TEST_TIME	5.0
 
 #define _REGISTER_		register
 
@@ -57,15 +61,16 @@ typedef struct record {
 
 
 typedef struct dhrystone_result_s {
-  double real_time_taken;
-  double dhrystones;
-  double vaxmips;
-  double loop_usecs;
-  long total_loops;
-} dhrystone_result_t;
+  t_d64 real_time_taken;
+  t_d64 dhrystones;
+  t_d64 vaxmips;
+  t_d64 loop_usecs;
+  t_l32 total_loops;
+} t_dhrystone_result;
 
 /* function declarations */
-double d_time( void );
-int calculate_dhrystone (double , dhrystone_result_t *);
+t_d64 d_time( t_void );
+t_s32 calculate_dhrystone (t_d64, t_dhrystone_result*);
+
 
 #endif /* _DHRYSTONE_H_INC */
