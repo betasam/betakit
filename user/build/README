@@ -4,6 +4,12 @@
 
 README
 
+Date: 30-Dec-2010
+
+Build now uses configure.pl which uses perl's all powerful recursive
+descent parser in bkparse.pm and parses kernel config like *.bconfig
+files. Early stage testing is positive.
+
 Date: 23-Dec-2010
 
 This directory has scripts used for configuration and
