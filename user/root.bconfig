@@ -5,7 +5,7 @@
 # TOPDIR = build/
 # PEER   = src/
 
-MAINMENU "Betakit Userspace"
+MAINMENU "Betakit's Userspace"
 
 CONFIG BK_SYSTEM
        bool "Betakit System Calls"
