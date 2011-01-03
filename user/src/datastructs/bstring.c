@@ -17,6 +17,10 @@
  * @todo	Architecture specific optimisation.
  */
 
+#include <bkconfig.h>
+
+#ifdef CONFIG_BK_DS_STRING
+
 /* Debug Includes */
 #include <stdio.h>
 #include <stdlib.h>
@@ -422,5 +426,7 @@ t_s32 bk_AtBash( t_str strptr )
  *
  *
  */
+
+#endif	/* CONFIG_BK_DS_STRING */
 
 /* end of file "bstring.c" */

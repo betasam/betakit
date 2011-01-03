@@ -9,6 +9,10 @@
  * gcc friendly and the results too will be.
  */
 
+#include <bkconfig.h>
+
+#ifdef CONFIG_BK_SYS_DHRYSTONES
+
 /** @remark standard includes */
 #include <stdio.h>
 #include <stdlib.h>
@@ -448,5 +452,7 @@ t_s32 calculate_dhrystone (t_d64 time, t_dhrystone_result *results)
 
   return(-1); /* This line is never executed */
 }
+
+#endif /* CONFIG_BK_SYS_DHRYSTONES */
 
 /* @remark end of file "dhrystone.c" */

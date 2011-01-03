@@ -5,6 +5,10 @@
  * @date	2010-2012
  */
 
+#include <bkconfig.h>
+
+#ifdef CONFIG_BK_CLI_PARSER
+
 #include <bconst.h>
 #include <btypes.h>
 #include <berror.h>
@@ -30,5 +34,7 @@ t_str *cli_tokens( t_str sz_line )
 
   return( str_array );
 }
+
+#endif	/* CONFIG_BK_CLI_PARSER */
 
 /* @remark end of file "cli_parser.c" */

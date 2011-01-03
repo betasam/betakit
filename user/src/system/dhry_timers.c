@@ -9,6 +9,10 @@
  */
 
 
+#include <bkconfig.h>
+
+#ifdef CONFIG_BK_SYS_DHRYSTONES
+
 /**
  * @brief system includes
  */
@@ -39,4 +43,5 @@ double d_time( void )
   return( d_ftime );
 }
 
+#endif	/* CONFIG_BK_SYS_DHRYSTONES */
 /* @remark end of "dhry_timers.c" */

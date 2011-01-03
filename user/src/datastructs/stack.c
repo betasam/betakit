@@ -10,6 +10,9 @@
  *
  */
 
+#include <bkconfig.h>
+#ifdef CONFIG_BK_DS_STACK
+
 /* @remark betakit includes */
 #include <memory.h>
 #include <berror.h>
@@ -192,4 +195,5 @@ t_ptr stack_pop( t_stack *stack_ptr )
   return( retval );
 }
 
+#endif	/* CONFIG_BK_DS_STACK */
 /* @remark end of file "stack.c" */

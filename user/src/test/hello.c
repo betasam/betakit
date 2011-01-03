@@ -13,6 +13,10 @@
  * user interface library added to betakit.
  */
 
+#include <bkconfig.h>
+
+#ifdef CONFIG_BK_TEST_HELLO
+
 /* @remark standard includes */
 #include <stdio.h>
 
@@ -60,6 +64,7 @@ t_string menu_items[MAX_MENU_ITEMS] = {
  */
 void say_hello( void )
 {
+#ifdef CONFIG_BK_SYS_MEMORY
   t_u8  stringalloc[BERR_SZ_LEN];
   t_str str_hello, str_ptr;
 
@@ -74,6 +79,9 @@ void say_hello( void )
   printf( "Betakit:(\"%s\") \n", str_ptr );
 
   mem_free( str_hello );
+#else
+  printf("%s: hello() requires memory management (SYS) support, currently disabled.\n", __FUNCTION__ );
+#endif
   return;
 }
 
@@ -84,6 +92,7 @@ void say_hello( void )
  */
 void test_strings( void )
 {
+#ifdef CONFIG_BK_DS_STRING
   t_str str_one, str_two, str_num;
   t_s32 i_strlen;
   t_u32 u_num = BK_NUM_TEST;
@@ -119,9 +128,13 @@ void test_strings( void )
   mem_free( str_one );
   mem_free( str_num );
   mem_free( str_two );
-
+#else
+  printf("%s: library support for string/bstring (DS) disabled.\n", __FUNCTION__ );
+#endif	/* CONFIG_BK_DS_STRING */
   return;
 }
+
+
 
 /**
  * @fn void test_stack(void)
@@ -129,6 +142,7 @@ void test_strings( void )
  */
 void test_stack( void )
 {
+#ifdef CONFIG_BK_DS_STACK
   t_str str_ptr;
   t_s32 idx;
   t_stack_ptr stack_ptr;
@@ -155,6 +169,9 @@ void test_stack( void )
     }
 
   stack_clean( stack_ptr );
+#else
+  printf("%s: library support for stack (DS) disabled.\n", __FUNCTION__ );
+#endif	/* CONFIG_BK_DS_STACK */
   return;		       
 }
 
@@ -164,6 +181,7 @@ void test_stack( void )
  */
 void test_queue( void )
 {
+#ifdef CONFIG_BK_DS_QUEUE
   t_str str_ptr;
   t_s32 idx;
   t_queue_ptr queue_ptr;
@@ -214,9 +232,13 @@ void test_queue( void )
 
 
   queue_clean( queue_ptr );
+#else
+  printf("%s: library support for queue (DS) disabled.\n", __FUNCTION__ );
+#endif	/* CONFIG_BK_DS_QUEUE */
   return;
 
 }
+
 
 /**
  * @fn test_number( void )
@@ -225,6 +247,7 @@ void test_queue( void )
  */
 void test_number( void )
 {
+#ifdef CONFIG_BK_DS_NUMBER
   t_u64 test_number     = BK_NUMBER_TEST_M;
   t_u64 test_number_n   = ~(BK_NUMBER_TEST_M);
   t_u64 test_random     = 0ull;
@@ -254,7 +277,9 @@ void test_number( void )
   test_random = number_rand( (t_u32)(test_number & BK_NUMBER_LMASK) );
   printf("%s: simple random[0x%016llX]\n", __FUNCTION__,
 	 test_random );
-	 
+#else
+  printf("%s: library support for number (DS) disabled.\n",__FUNCTION__ );
+#endif	/* CONFIG_BK_DS_NUMBER */ 
   return;
 }
 
@@ -266,11 +291,15 @@ void test_number( void )
  */
 void measure_dhrystones( void )
 {
+#ifdef CONFIG_BK_SYS_DHRYSTONES
   t_dhrystone_result dresult;
   calculate_dhrystone ( DHRYSTONE_TEST_TIME, &dresult );
   printf( "\t your machine can do %f MIPS which is %f VAX-MIPS taking %f uSecs per loop\n",
 	  dresult.dhrystones, dresult.vaxmips, dresult.loop_usecs );
   printf( "\t that is %u loops in %f Seconds\n", (t_u32) dresult.total_loops, (t_f32) dresult.real_time_taken );
+#else
+  printf("%s: library support for dhrystones (SYS) disabled.\n", __FUNCTION__ );
+#endif	/* CONFIG_BK_SYS_DHRYSTONES */
   return;
 }
 
@@ -282,14 +311,17 @@ void measure_dhrystones( void )
  */
 void measure_whetstones( void )
 {
+#ifdef CONFIG_BK_SYS_WHETSTONES
   t_whetstone_result wresult;
   calculate_whetstones( WHETSTONE_TEST_TIME, &wresult );
   printf( "\t your machine can do %f Whetstone MIPS with %f mSecs per loop\n",
 	  wresult.whetstones, wresult.loop_msecs );
   printf( "\t that is %u loops in %f Seconds\n", (t_u32) wresult.total_loops, (t_f32) wresult.real_time_taken );
+#else
+  printf("%s: library support for whetstones (SYS) disabled.\n", __FUNCTION__ );
+#endif	/* CONFIG_BK_SYS_WHETSTONES */
   return;
 }
-
 
 /**
  * @fn t_s32 hello_menu( t_s32 choice )
@@ -299,7 +331,8 @@ void measure_whetstones( void )
 t_s32 hello_menu( t_s32 choice )
 {
   t_s32 retval = ZERO;
- 
+#ifdef CONFIG_BK_UI_CLI
+
   switch( choice )
     {
     case 1:
@@ -354,9 +387,71 @@ t_s32 hello_menu( t_s32 choice )
 
     } /* switch( choice ) */
 
+#else
+  printf("%s: CONFIG_BK_UI_CLI not defined. No CLI support.\n", __FUNCTION__ );
+#endif /* CONFIG_BK_UI_CLI */
   return( retval );
 }
 
+
+/**
+ * @fn	init_menu(void)
+ * @brief initialise CLI based menu and provide callback
+ * @detail starts user interaction
+ */
+void init_menu( void )
+{
+#ifdef CONFIG_BK_UI_CLI
+  t_menu_ptr main_menu;
+  main_menu = cli_menu_init();
+
+  printf("%s: init_menu called\n", __FUNCTION__ );
+
+  cli_menu_addlist( main_menu, menu_items, MAX_MENU_ITEMS );
+  cli_menu_callback( main_menu, &hello_menu );
+  cli_set_prompt((t_str)SZ_BETAKIT_PROMPT);
+
+  cli_menu_user( main_menu );
+  return;
+#else
+  printf("%s: test requires CONFIG_BK_UI_CLI to be set.\n", __FUNCTION__ );
+#endif
+}
+
+/**
+ * @fn		__ctor_main(void)
+ * @brief	manually called constructor for main()
+ */
+void __ctor_main( void )
+{
+#ifdef CONFIG_BK_SYS_ERRORHANDLER
+  _bk_errlog_init( BK_STDERR );
+#else
+  printf("%s: WARNING! SERIOUS! library does not have error handler.\n", __FUNCTION__ );
+#endif
+}
+
+/**
+ * @fn		__dtor_main(void)
+ * @brief	manually called destructor for main()
+ */
+void __dtor_main( void )
+{
+#ifdef CONFIG_BK_SYS_ERRORHANDLER
+  t_s32 tmp;
+  if( 0 > (tmp =_bk_errlog_flush()) )
+    {
+      printf("%s: oops _bk_errlog_flush() failed with -0x%02x\n", __FUNCTION__, -tmp );
+    }
+
+  _bk_errlog_free();
+#endif
+
+#ifdef CONFIG_BK_SYS_MEMORY
+  mem_gc();			/* @remark garbage collect */
+#endif	/* CONFIG_BK_SYS_MEMORY */
+
+}
 
 /**
  * @fn int main(void)
@@ -366,29 +461,26 @@ t_s32 hello_menu( t_s32 choice )
  */
 int main( void )
 {
-  t_menu_ptr main_menu;
-  t_s32 tmp;
+  __ctor_main();
 
-  _bk_errlog_init( BK_STDERR );
+  init_menu();
 
-  main_menu = cli_menu_init();
-
-  cli_menu_addlist( main_menu, menu_items, MAX_MENU_ITEMS );
-  cli_menu_callback( main_menu, &hello_menu );
-  cli_set_prompt((t_str)SZ_BETAKIT_PROMPT);
-
-  cli_menu_user( main_menu );
-
-
-  if( 0 > (tmp =_bk_errlog_flush()) )
-    {
-      printf("%s: oops _bk_errlog_flush() failed with -0x%02x\n", __FUNCTION__, -tmp );
-    }
-
-  _bk_errlog_free();
-
-  mem_gc();			/* @remark garbage collect */
+  __dtor_main();
   return(0);
 }
+#else /* CONFIG_BK_TEST_HELLO (undefined) */
+
+/**
+ * alternate main, to avoid
+ * compiler botch-up.
+ */
+int main( void )
+{
+  printf("%s: CONFIG_BK_TEST_HELLO disabled\n", __FUNCTION__ );
+  return(0);
+}
+
+
+#endif	/* CONFIG_BK_TEST_HELLO */
 
 /* @remark end of file "hello.c" */

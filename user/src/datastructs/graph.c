@@ -6,6 +6,9 @@
  *
  */
 
+#include <bkconfig.h>
+
+#ifdef CONFIG_BK_DS_GRAPH
 
 /* @remark betakit includes */
 #include <ops.h>
@@ -402,5 +405,7 @@ t_s32 node_self_connect( t_node_ptr node_ptr )
  *	report all memory allocation errors for 
  *	node_init() and edge_init() functions.
  */
+
+#endif	/* CONFIG_BK_DS_GRAPH */
 
 /* @remark End of file "graph.c" */

@@ -18,6 +18,10 @@
  */
 
 
+#include <bkconfig.h>
+
+#ifdef CONFIG_BK_SYS_ERRORHANDLER
+
 /* betakit: types and basic error header */
 #include <bconst.h>
 #include <btypes.h>
@@ -776,5 +780,5 @@ t_s32 _bk_errlog_free( void )
   return( rt );
 }
 
-
+#endif	/* CONFIG_BK_SYS_ERRORHANDLER */
 /** @remark end of file "berror.c" */

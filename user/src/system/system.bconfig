@@ -14,12 +14,12 @@ CONFIG BK_SYS_ERRORHANDLER
 
 CONFIG BK_SYS_DHRYSTONES
        bool "Betakit Dhrystones module"
-       default n
+       default y
        depends on BK_SYS_MEMORY
 
 CONFIG BK_SYS_WHETSTONES
        bool "Betakit Whetstones Module"
-       default n
+       default y
        depends on BK_SYS_MEMORY
 
 # end of config file

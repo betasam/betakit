@@ -1,13 +1,16 @@
 /**
- * @file cli.c command line interface
+ * @file   cli.c command line interface
  * @author Sunil Beta Baskar <betasam@gmail.com>
- * @date 2005-2009
- * @brief Command Line Interface Abstraction
+ * @date   2008-2012
+ * @brief  Command Line Interface Abstraction
  *
  * @todo  Destructor for Menu Structure 
  * @todo  Abstract support for sub-menus 
  */
 
+#include <bkconfig.h>
+
+#ifdef CONFIG_BK_UI_CLI
 
 
 /** @remark standard includes */
@@ -336,5 +339,7 @@ t_s32 cli_menu_user( t_menu* menu_ptr )
 
   return( retval );
 }
+
+#endif	/* CONFIG_BK_UI_CLI */
 
 /** @remark end of file "cli.c" */

@@ -9,6 +9,9 @@
  * @warning This code is not threadsafe.
  */
 
+#include <bkconfig.h>
+#ifdef CONFIG_BK_DS_LIST
+
 /* @remark betakit includes */
 #include <memory.h>
 #include <btypes.h>
@@ -275,4 +278,5 @@ t_s32 list_empty( t_list *head )
   return i_retval;
 }
 
+#endif	/* CONFIG_BK_DS_LIST */
 /* @remark end of file "list.c" */

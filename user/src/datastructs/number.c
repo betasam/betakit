@@ -20,6 +20,10 @@
  *		number_lsbit( u_number ) implemented;
  */
 
+#include <bkconfig.h>
+
+#ifdef CONFIG_BK_DS_NUMBER
+
 #include <time.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -282,4 +286,5 @@ t_u64 number_rand( t_u32 seed )
   return( prev_number = ret_number );
 }
 
+#endif	/* CONFIG_BK_DS_NUMBER */
 /* @remark End of file "number.c" */

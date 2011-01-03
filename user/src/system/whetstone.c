@@ -10,6 +10,10 @@
  * capability of a platform in a deterministic fashion.
  */
 
+#include <bkconfig.h>
+
+#ifdef CONFIG_BK_SYS_WHETSTONES
+
 /* @remark standard libary include */
 #include <math.h>
 
@@ -276,4 +280,5 @@ t_s32 calculate_whetstones( int time, t_whetstone_result* wresults )
 	return(0);
 }
 
+#endif /* CONFIG_BK_SYS_WHETSTONES */
 /* @remark end of file "whetstone.c" */

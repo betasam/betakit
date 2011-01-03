@@ -34,8 +34,7 @@ config BK_DS_NUMBER
 
 config BK_DS_GRAPH
        bool "Graph manipulation support"
-       depends on BK_DSTRUCTS
-       depends on BK_SYS_MEMORY
+       depends on BK_DSTRUCTS && BK_SYS_MEMORY
        default n
 
 # end of config file

@@ -12,6 +12,9 @@
  *		on malloc and related functions.
  */
 
+#include <bkconfig.h>
+
+#ifdef CONFIG_BK_SYS_MEMORY
 
 /* @remark Standard Includes : required for malloc() */
 #include <stdlib.h>
@@ -473,4 +476,5 @@ void mem_changecalls( t_memory_calls *new_calls )
   return;
 }
 
+#endif	/*CONFIG_BK_SYS_MEMORY */
 /* @remark end of file "memory.c" */

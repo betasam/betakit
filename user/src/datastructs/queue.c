@@ -8,6 +8,9 @@
  * @todo for functions returning pointers
  */
 
+#include <bkconfig.h>
+#ifdef CONFIG_BK_DS_QUEUE
+
 #ifdef _BKIT_QUEUE_DEBUG
 #include <stdio.h>
 #endif
@@ -380,5 +383,7 @@ t_u32 queue_items( t_queue_ptr queue_ptr )
 
   return( retval );
 }
+
+#endif	/* CONFIG_BK_DS_QUEUE */
 
 /* @remark end of "queue.c" */
