@@ -133,7 +133,11 @@ mrproper: clean
 
 build-deps:
 	if [ ! -x $(TOP_DIR)/$(BUILD_DIR)/configure.pl ]; then \
-	echo "Error: Unresolved dependencies"; \
+	echo "Error: cannot find build/configure.pl"; \
+	exit 2; \
+	fi
+	if [ ! -x $(TOP_DIR)/$(BUILD_DIR)/pathfactor.pl ]; then \
+	echo "Error: cannot find build/pathfactor.pl"; \
 	exit 2; \
 	fi
 #
