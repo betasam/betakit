@@ -10,6 +10,9 @@
 # use:	this is meant for use only through
 #	make and not to be called directly
 #
+# exec: will be run in betakit/user/build 
+#	by GNU/Make
+# 
 use warnings;
 
 use bkparse;
