@@ -6,6 +6,7 @@
 # Copyright (c) 2005-2012 Sunil Beta Baskar <betasam@gmail.com>
 #
 # CHANGELOG
+#	03-JAN-2011	Doxyfile.Template helps building Doxyfile
 #	30-DEC-2010	make configure works now
 #	22-DEC-2010	Added DEBUG option for Makefile
 #	17-DEC-2010	Checked and updated for cross-compiling#
@@ -144,12 +145,15 @@ build-deps:
 $(SRC_SUBDIRS):
 	$(MAKE) $(MAKE_FLAGS) -C $(TOP_DIR)/$(SRC_DIR)/$@ all
 
-dep: build-dirs build-deps
+dep: build-dirs build-deps Doxyfile
 
 configure:
 	$(CD) $(TOP_DIR)/$(BUILD_DIR) && ./configure.pl ../root.bconfig
 
-doc:
+Doxyfile: Doxyfile.Template
+	$(TOP_DIR)/$(BUILD_DIR)/pathfactor.pl $< $(TOP_DIR) > $@
+
+doc: Doxyfile
 	if [ -x $(DOXYGEN) ]; then \
 	 $(MKDIR) $(TOP_DIR)/$(DOC_DIR) -p; \
 	 $(DOXYGEN) $(DOXYFILE); \
@@ -163,9 +167,9 @@ build-dirs:
 tags:
 	$(FIND) $(TOP_DIR) -name *.[chS]* | $(GREP) -v ~$$ | $(XARGS) -n1 $(CTAGS) $(CTAGS_OPTS)
 
-.PHONY: clean doc tags mrproper build-dirs build-deps configure
+.PHONY: clean doc tags mrproper build-dirs build-deps configure Doxyfile
 
-.SILENT: $(SRC_SUBDIRS) clean tags build-dirs build-deps configure
+.SILENT: $(SRC_SUBDIRS) clean tags build-dirs build-deps configure Doxyfile
 
 #
 # end of Top Makefile
