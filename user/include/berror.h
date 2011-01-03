@@ -8,6 +8,10 @@
 #ifndef _BERROR_H_INC
 #define _BERROR_H_INC
 
+#include <bkconfig.h>
+
+#ifdef CONFIG_BK_SYS_ERRORHANDLER
+
 #include <btypes.h>
 
 #ifndef BKIT_NODEFAULTS
@@ -251,5 +255,7 @@ t_s32 _bk_errlog_init( t_s32 fd );
 t_s32 _bk_errlog_post( t_s32 major, t_s32 minor );
 t_s32 _bk_errlog_flush( void );
 t_s32 _bk_errlog_free( void );
+
+#endif	/* CONFIG_BK_SYS_ERRORHANDLER */
 
 #endif /* _BERROR_H_INC */

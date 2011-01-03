@@ -9,11 +9,15 @@
  */
 
 /***
- * Copyright (c) 2005-2008 Sunil Beta Baskar <betasam@gmail.com>
- */
+ * Copyright (c) 2008-2012 Sunil Beta Baskar <betasam@gmail.com>
+ *
+ **/
 
 #ifndef _LIST_H_INC
 #define _LIST_H_INC
+
+#include <bkconfig.h>
+#ifdef CONFIG_BK_DS_LIST
 
 #include <btypes.h>
 
@@ -42,5 +46,7 @@ t_s32 list_del( t_list *head, t_list *node );
 t_list *list_find( t_list *head, t_ptr data_to_find, t_s32 (*data_cmp)( t_ptr data_in_list, t_ptr data_sought ) );
 void list_clean( t_list *node );
 t_s32 list_empty( t_list *head );
+
+#endif	/* CONFIG_BK_DS_LIST */
 
 #endif /* _LIST_H_INC */

@@ -8,6 +8,9 @@
 #ifndef _QUEUE_H_INC
 #define _QUEUE_H_INC
 
+#include <bkconfig.h>
+#ifdef CONFIG_BK_DS_QUEUE
+
 #include <btypes.h>
 
 /* structure definitions */
@@ -45,5 +48,7 @@ t_u8		queue_status( t_queue_ptr queue_ptr );
 #else
 #undef _BKIT_QUEUE_DEBUG
 #endif
+
+#endif	/* CONFIG_BK_DS_QUEUE */
 
 #endif	/* _QUEUE_H_INC */

@@ -9,7 +9,10 @@
  */
 
 #ifndef _STACK_H_INC
-#define _STACK_H_INC
+#define _STACK_H_IN
+
+#include <bkconfig.h>
+#ifdef CONFIG_BK_DS_STACK
 
 #include <btypes.h>
 
@@ -38,5 +41,7 @@ typedef t_stack* t_stack_ptr;
 	t_s32	 stack_push( t_stack *stack_ptr, t_ptr data );
 	t_ptr	 stack_pop( t_stack *stack_ptr );
 	t_s32	 stack_current_depth( t_stack *stack_ptr );
+
+#endif	/* CONFIG_BK_DS_STACK */
 
 #endif /* _STACK_H_INC */

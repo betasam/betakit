@@ -16,6 +16,10 @@
 #ifndef _MEMORY_H_INC
 #define _MEMORY_H_INC
 
+#include <bkconfig.h>
+
+#ifdef CONFIG_BK_SYS_MEMORY
+
 #include <btypes.h>
 
 /** @remark define macros */
@@ -53,4 +57,7 @@ t_u32 mem_copy( t_ptr dest_ptr, t_ptr src_ptr, t_u32 u_bytes_to_copy );
 t_void mem_stat(t_void);
 #endif	/* BKIT_DEBUG_MODE */
 
+#endif /* CONFIG_BK_SYS_MEMORY */
+
 #endif /* _MEMORY_H_INC */
+

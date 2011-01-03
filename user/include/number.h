@@ -9,6 +9,10 @@
 #ifndef _NUMBER_H_INC
 #define _NUMBER_H_INC
 
+#include <bkconfig.h>
+
+#ifdef CONFIG_BK_DS_NUMBER
+
 #include <btypes.h>
 
 /* @remark macro assignments */
@@ -51,5 +55,7 @@ t_u8 number_msbit( t_u64 u64_number );
 t_u64 number_rand( t_u32 seed );
 
 inline t_u64 number_mul( t_u32 foo, t_u32 bar );
+
+#endif	/* CONFIG_BK_DS_NUMBER */
 
 #endif	/* _NUMBER_H_INC */

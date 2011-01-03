@@ -2,14 +2,19 @@
  * @file cli.h
  * @brief command line interface header
  * @author Sunil Beta Baskar <betasam@gmail.com>
+ * @date 2008-2012
  */
 
 /*
- * Copyright (c) 2005-2008 Sunil Beta Baskar <betasam@gmail.com>
+ * Copyright (c) 2008-2012 Sunil Beta Baskar <betasam@gmail.com>
  */
 
 #ifndef _CLI_H_INC
 #define _CLI_H_INC
+
+#include <bkconfig.h>
+
+#ifdef CONFIG_BK_UI_CLI
 
 #include <btypes.h>
 #include <list.h>
@@ -81,5 +86,7 @@ t_s32 cli_menu_addlist( t_menu_ptr menu_ptr, t_string *menuitem_list, t_s32 coun
 t_s32 cli_menu_callback(t_menu_ptr menu_ptr, t_s32 (*menu_callback)(t_s32 choice) );
 t_s32 cli_show_menu( t_menu_ptr menu_ptr );
 t_s32 cli_menu_user( t_menu_ptr menu_ptr );
+
+#endif	/* CONFIG_BK_UI_CLI */
 
 #endif /* _CLI_H_INC */

@@ -9,6 +9,10 @@
 #ifndef _DHRYSTONE_H_INC
 #define _DHRYSTONE_H_INC
 
+#include <bkconfig.h>
+
+#ifdef CONFIG_BK_SYS_DHRYSTONES
+
 /* Macro definitions */
 #define uSecs_per_Second	1000000.0
 #define TRUE			1
@@ -72,5 +76,6 @@ typedef struct dhrystone_result_s {
 t_d64 d_time( t_void );
 t_s32 calculate_dhrystone (t_d64, t_dhrystone_result*);
 
+#endif /* CONFIG_BK_SYS_DHRYSTONES */
 
 #endif /* _DHRYSTONE_H_INC */

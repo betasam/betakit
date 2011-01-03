@@ -6,6 +6,10 @@
  * @date	2010-2012
  */
 
+#include <bkconfig.h>
+
+#ifdef CONFIG_BK_DS_STRING
+
 #include <bconst.h>
 #include <btypes.h>
 
@@ -27,5 +31,7 @@ t_s32 bk_toupper( t_str strptr );
 t_s32 bk_trstr( t_str strptr, t_s32 rot );
 t_s32 bk_atbash( t_str strptr );
 t_s32 bk_AtBash( t_str strptr );
+
+#endif	/* CONFIG_BK_DS_STRING */
 
 #endif	/* _BSTRING_H_INC */

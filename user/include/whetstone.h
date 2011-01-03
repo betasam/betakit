@@ -6,6 +6,10 @@
 #ifndef _WHETSTONE_H_INC
 #define _WHETSTONE_H_INC
 
+#include <bkconfig.h>
+
+#ifdef CONFIG_BK_SYS_WHETSTONES
+
 #include <btypes.h>
 
 /* Betakit defaults */
@@ -22,5 +26,7 @@ typedef struct whetstone_result_s {
 } t_whetstone_result;
 
 t_s32 calculate_whetstones( int time, t_whetstone_result* wresults );
+
+#endif /* CONFIG_BK_SYS_WHETSTONES */
 
 #endif /* _WHETSTONE_H_INC */

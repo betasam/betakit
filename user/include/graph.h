@@ -7,6 +7,10 @@
 #ifndef _GRAPH_H_INC
 #define _GRAPH_H_INC
 
+#include <bkconfig.h>
+
+#ifdef CONFIG_BK_DS_GRAPH
+
 /* basic type includes */
 #include <btypes.h>
 #include <list.h>
@@ -38,5 +42,6 @@ t_s32 is_node_connected( t_node_ptr alpha_node, t_node_ptr beta_node );
 t_s32 node_connect( t_node_ptr alpha_node, t_node_ptr beta_node );
 t_s32 node_self_connect( t_node_ptr node_ptr );
 
+#endif	/* CONFIG_BK_DS_GRAPH */
 
 #endif /* @remark _GRAPH_H_INC */
