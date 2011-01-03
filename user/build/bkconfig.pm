@@ -44,13 +44,15 @@ my $DEBUGME = $BKC_DEBUGME;
 ##
 $bkdepgrammar = << '_EODEPS_';
 
-    boolean: /[y|m|n]/i
+    variant: /[y|m|n]/i
    operator: /and/i | /or/i | /\&\&/ | /\|\|/
- dependency: boolean operator boolean operator boolean
+ dependency: variant operator variant operator variant
 { return(bkconfig::bk_ternary_deps(@item)) }
-           | boolean operator boolean
+           | variant operator variant
 { return(bkconfig::bk_binary_deps(@item)) } 
- unary: boolean
+	   | variant operator variant operator variant operator variant
+{ return(bkconfig::bk_quaternary_deps(@item)) }
+      unary: variant
 { return(bkconfig::bk_unary_deps(@item)) }
   startrule: dependency | unary
 
@@ -356,6 +358,7 @@ sub bk_parse_include
     dprintf("bk: [incl] got %s %s\n", $_[1], $submenu_file);
 }
 
+
 #
 # evaluate boolean expression
 # of the form w OP x OP y 
@@ -378,6 +381,32 @@ sub bk_ternary_deps
     return $result;
 } 
 
+# TODO: Rewrite grammar, maybe LALR
+#
+# evaluate long boolean expression 
+# of form w OP x OP y OP z
+#      or w l  x m  y n  z
+#
+sub bk_quaternary_deps
+{
+    shift;
+    my($w,$l,$x,$m,$y,$n,$z) = @_;
+
+    $expr = $w . " " . $l . " " . $x . " " . $m . " " . $y . " " . $n . " " . $z;
+
+    $expr =~ s/and/\*/ig;
+    $expr =~ s/or/\+/ig;
+    $expr =~ s/y/1/ig;
+    $expr =~ s/m/1/ig;
+    $expr =~ s/n/0/ig;
+
+    $result = eval $expr;
+
+    dprintf(">>> [expr] %s = [result] %s\n", $expr, $result );
+    
+    return $result;
+}
+
 #
 # evaluate boolean expression
 # of the form x OR y
@@ -389,12 +418,12 @@ sub bk_binary_deps
 
     $expr = $lhs . " " . $op . " " . $rhs;
 
-   $expr  =~ s/and/\*/ig;
-   $expr  =~ s/or/\+/ig;
+    $expr =~ s/and/\*/ig;
+    $expr =~ s/or/\+/ig;
 
-   $expr =~ s/y/1/ig;
-   $expr =~ s/m/1/ig;
-   $expr =~ s/n/0/ig;
+    $expr =~ s/y/1/ig;
+    $expr =~ s/m/1/ig;
+    $expr =~ s/n/0/ig;
 
 
    dprintf(">> eval %s\n", $expr);
@@ -485,6 +514,9 @@ sub bk_resolve_deps
     }
 }
 
+#
+# resolve using bk_compute_deps
+#
 sub bk_compute_deps
 {
     my $idx;
@@ -508,6 +540,40 @@ sub bk_compute_deps
 	}
     }
     
+}
+
+#
+# bk_get_vars
+#
+sub bk_get_vars
+{
+    my $idx;
+    my $bool_expr;
+    my $result;
+
+    printf("Config Menu: < %s >\n\n", $bk_rootmenu_str );
+
+    for( $idx = 0; $idx < $last_idx; $idx++ )
+    {
+	$bool_expr = $CONFIG_VAR_DEPS[$idx];
+	if( $bool_expr !~ /^$/ )
+	{
+	    $result = $CONFIG_VAR_DEPS[$idx];
+	    if(($result =~ /^$/) || ($result !~ 0))
+	    {
+		printf("(%s) %s [y/m/n] > ", $CONFIG_VARIABLE[$idx], $CONFIG_VAR_INFO[$idx]);
+
+		$user_choice = <STDIN>;
+		printf("\n");
+		
+		$CONFIG_VAR_VALS = $user_choice if ($CONFIG_VAR_VALS =~ /[y|n|m]/i);
+		# ghastly
+		$user_choice = /^$/;
+		
+	    }
+	}
+    }
+    bk_compute_deps;
 }
 
 #
@@ -600,6 +666,7 @@ sub bk_parse($)
 
 ##   DEBUG
 #    bk_dump_vars;		
+    bk_get_vars;
 
     bk_gen_header("../include/bkconfig.h");
 }
