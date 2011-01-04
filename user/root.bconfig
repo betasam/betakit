@@ -7,6 +7,10 @@
 
 MAINMENU "Betakit's Userspace"
 
+DEFINE BK_VERSION
+       string "Betakit Version String"
+       default "1.0.3"
+
 CONFIG BK_SYSTEM
        bool "Betakit System Calls"
        default y
