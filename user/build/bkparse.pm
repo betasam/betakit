@@ -11,6 +11,12 @@
 #
 # CHANGELOG
 #
+# 04 Jan 2011		Support to read/write .bkconfig
+#			.config like files
+#			DEFINE VARNAME, DEFAULT VALUE
+#			support added to .bconfig files
+#			for values, users cannot modify
+#
 # 03 Jan 2011		Revised header file generator, 
 #			minor update to "discard" rule
 #
@@ -20,8 +26,9 @@
 
 
 package bkparse;
-use Parse::RecDescent;
 require Exporter;
+
+use Parse::RecDescent;
 
 @ISA=qw(Exporter);
 @EXPORT = qw(bk_print bk_printf bk_parse bk_setdebug);
@@ -39,7 +46,7 @@ $::RD_HINT   = 1; # Give out hints to help fix problems.
 # VERSION Strings
 #
 $bkprogramname = "BetaKit";
-$bkprogramvers = "1.0.2";
+$bkprogramvers = "1.0.3";
 $bkprogrampref = $bkprogramname . " " . $bkprogramvers . " > ";
 #
 # end VERSION Strings
@@ -60,6 +67,7 @@ my %CONFIG_VAR_TYPE;		# hash holding variable type
 my %CONFIG_VAR_VALS;		# hash holding variable values
 my $CONFIG_VAR_INIT;		# hash holding variable default values
 my %CONFIG_IDX_HASH;		# hash storing index of variable
+my %CONFIG_VAR_USER;		# can user define variable value
 my %CONFIG_VAR_STAT;		# hash to compute 
 				#  if dependency allows variable
 my $CONFIG_VAR_LOCK = false;	# lock for config variable structure
@@ -101,16 +109,17 @@ $bkparsegrammar= << '_EODEF_';
       integer: /(0-9)+/
        string: /(\".+\")|(\'.+\')/
      variable: /[a-zA-Z_][a-zA-Z0-9_]*/
-      boolean: /y/i | /n/i | /t/i | /f/i | /true/i | /false/i | /1/ | /0/
+      boolean: /[yn]/i
      tristate: /[ymn]/i
-     constant: boolean | tristate | integer
+     constant: boolean | tristate | integer | string
    binoperand: '&&' | '||' | /and/i | /or/i 
  constoperand: /=/ | /!=/ | /=~/ | /!~/
       vartype: /bool/i | /string/i | /integer/i | /tristate/i
     directive: /source/i | /include/i
       keyword: /config/i
+       select: /select/i | /define/i | /set/i
       depends: /depends on/i
-       define: /def_bool/i | /default/i 
+       setval: /def_bool/i | /default/i | /def_string/i
      rootmenu: /mainmenu/i 
     multiline: /--help--/i
       include: directive string
@@ -118,7 +127,8 @@ $bkparsegrammar= << '_EODEF_';
       menudef: rootmenu string
 { return bkparse::bk_setmenu_name(@item) }
     assertion: keyword variable
-   assignment: define constant
+  nonuserconf: select variable
+   assignment: setval constant
 { return bkparse::bk_setvariable(@item) }
       typedef: vartype string
 { return bkparse::bk_typevariable(@item) }
@@ -152,6 +162,8 @@ $bkparsegrammar= << '_EODEF_';
    configline: menudef
              | assertion
 { return bkparse::bk_addvariable(@item) }
+             | nonuserconf
+{ return bkparse::bk_sysvariable(@item) }
              | typedef
              | dependency
              | condition
@@ -196,6 +208,29 @@ _EORULE_
 #
 # end of grammar
 #
+
+#
+# grammar for bkconfig.save
+# configuration repositories
+# similar to ".config" for linux kernels
+#
+$bkconfiggrammar = << '_EOGRAMMAR_';
+      integer: /(0-9)+/
+       string: /(\".+\")|(\'.+\')/
+     variable: /[a-zA-Z_][a-zA-Z0-9_]*/
+      boolean: /[yn]/i
+     tristate: /[ymn]/i
+     constant: boolean | tristate | integer | string
+     variable: /[a-zA-Z_][a-zA-Z0-9_]*/
+      comment: /^#/
+      blanked: /^$/
+       ignore: comment | blanked
+      command: variable '=' constant
+{ return bkparse::bk_read_var(@item) }
+    startrule: command | ignore
+
+_EOGRAMMAR_
+
 
 #
 # exported print functions
@@ -478,6 +513,7 @@ sub bk_addvariable
 
     $CONFIG_VAR_NAME[ $bk_maxvars++ ] = $this_varname;
     $CONFIG_IDX_HASH{ $this_varname } = $bk_maxvars - 1;
+    $CONFIG_VAR_USER{ $this_varname } = 1; # user can modify this variable
 
 #   dprintf("%s: [%d] %s\n", "bkparse", ($bk_maxvars-1), $CONFIG_VAR_NAME[($bk_maxvars-1)]);
 
@@ -488,6 +524,51 @@ sub bk_addvariable
     return( $retval = 0 );
 
 }
+
+#
+# sub bk_sysvariable( $this_varname )
+#	add a new variable to CONFIG_VAR_NAMS
+#	if not already defined 
+#	WARNING! variable cannot be modified by 
+#	user using config, oldconfig, menuconfig
+#
+sub bk_sysvariable
+{    
+    my($this_varname) = $_[1];
+    my $bk_idx;
+    my $bk_maxvars = $BKC_LASTVARIDX;
+    my $retval;
+
+    _bk_lock;
+
+#   dprintf("bk_addvariable: this_varname = %s\n", $this_varname );
+    
+    for( $bk_idx = 0; $bk_idx < $bk_maxvars; $bk_idx++ )
+    {
+	# dangerous comparison
+	# CONFIG_SYS will not be allowed if CONFIG_SYS_NAMES 
+	# is defined first. FIXME!
+	if( $CONFIG_VAR_NAME[$bk_idx] =~ $this_varname )
+	{
+	    $retval = $bk_idx;
+	    return( $retval );
+	}
+    }
+
+    $CONFIG_VAR_NAME[ $bk_maxvars++ ] = $this_varname;
+    $CONFIG_IDX_HASH{ $this_varname } = $bk_maxvars - 1;
+    $CONFIG_VAR_USER{ $this_varname } = 0; # user cannot modify this variable
+
+#   dprintf("%s: [%d] %s\n", "bkparse", ($bk_maxvars-1), $CONFIG_VAR_NAME[($bk_maxvars-1)]);
+
+    $BKC_LASTVARIDX = $bk_maxvars;
+
+    _bk_unlock;
+
+    return( $retval = 0 );
+
+}
+
 
 #
 # sub _bk_normalise_operator( $operator )
@@ -633,6 +714,28 @@ sub bk_evaluate($)
     $result = eval $bool_expr;
 
     return( $result );
+}
+
+#
+# sub bk_read_var( $var, $op, $val )
+#	read a variable from a .bkconfig file
+#	to fill defaults and ease user input
+#	for configuration.
+#
+sub bk_read_var
+{
+    shift;
+
+    my($variable, $op, $value) = @_;
+    my $refidx;
+    my $varusr;
+
+    $varusr = $CONFIG_VAR_USER{$variable};
+    $refidx = $CONFIG_IDX_HASH{$variable};
+    $value  = $CONFIG_VAR_INIT{$variable} if( $varusr == 0 );
+    $CONFIG_VAR_VALS{$variable} = $value;  
+
+    dprintf("read> variable(%s) <= value(%s) [%d] \n", $variable, $value, $refidx );
 }
 
 #
@@ -789,7 +892,7 @@ sub _bk_is_input_valid($$)
     if( $vartype =~ /string/i )
     {
 	if( ($varval !~ /^$/ ) && 
-	    ($varval =~ /[a-zA-Z0-9_.+-\<\>\.,`;:\(\)\{\}\[\]\&\$\@\!\~\"\'\!\?\#\*\^]*/ ) )
+	    ($varval =~ /[a-zA-Z0-9_=.+-\<\>\.,`;:\(\)\{\}\[\]\&\$\@\!\~\"\'\!\?\#\*\^\t ]*/ ) )
 	{
 	    return( $retval = 1 );
 	}
@@ -828,14 +931,15 @@ sub bk_config_commandline
 
 	$varname = $CONFIG_VAR_NAME[$n_idx];
 	$vartype = $CONFIG_VAR_TYPE{ $varname };
+	$varuser = $CONFIG_VAR_USER{ $varname };
+	$varstat = $CONFIG_VAR_STAT{ $varname };
 
-	if( $CONFIG_VAR_STAT{ $varname } == 1 )
+	if( ($varstat == 1) && ($varuser == 1) )
 	{
 	    printf(  "  %s (CONFIG_%s) ", $CONFIG_VAR_DESC{ $varname }, $varname );
 
-
-	    $user_prompt = "[y/n]" if ($vartype =~ /bool/i );
-	    $user_prompt = "[y/m/n]" if ($vartype =~ /tristate/i );
+	    $user_prompt = "[y/n]"    if ($vartype =~ /bool/i );
+	    $user_prompt = "[y/m/n]"  if ($vartype =~ /tristate/i );
 	    $user_prompt = "[number]" if ($vartype =~ /integer/i );
 	    $user_prompt = "[string]" if ($vartype =~ /string/i );
 
@@ -873,6 +977,10 @@ sub bk_config_commandline
 		}
 		else
 		{
+		    printf("[Invalid! try again] %s ", $user_prompt );
+		    printf("Default(%s) ", $CONFIG_VAR_VALS{ $varname }) 
+			if( $CONFIG_VAR_VALS{ $varname } !~ /^$/ );
+		    printf("> ");
 		    $user_choice = <STDIN>;
 		    $input_valid = _bk_is_input_valid( $user_choice, $vartype );
 		}
@@ -900,6 +1008,8 @@ sub bk_config_commandline
 #	for debug purposes
 #	provide NAME, VALS, TYPE, DESC, DEPS, STAT
 #
+#	Usage: For debugging only
+#
 sub _bk_dump_vars
 {
     my $last_varidx;
@@ -924,6 +1034,58 @@ sub _bk_dump_vars
     _bk_unlock;
 }
 
+#
+# sub bk_write_config( $filenamepath )
+#	write configuration to ".config" like
+#	file specified in '$filenamepath'
+#
+sub bk_write_config
+{
+    my($filenamepath) = @_;
+    my $ret = 0;
+    my $last_varidx;
+
+    local *BKCONFIG;
+
+    open( BKCONFIG, ">" . $filenamepath ) or return( $ret = -1 );
+
+    if( 0 > ($last_varidx = _bk_get_lastidx()) )
+    {
+	return( $last_varidx );
+    }  
+
+
+    printf( BKCONFIG "#\n");
+    printf( BKCONFIG "# config.bkconfig automatically generated\n");
+    printf( BKCONFIG "#\n");
+
+    _bk_lock;
+    {
+	my $idx;
+	my $var;
+	my $val;
+	my $dep;
+	for( $idx = 0; $idx < $last_varidx; $idx++ )
+	{
+	    $var = $CONFIG_VAR_NAME[$idx];
+	    $val = $CONFIG_VAR_VALS{$var};
+	    $dep = $CONFIG_VAR_STAT{$var};
+
+	    printf( BKCONFIG "%s = %s\n", $var, $val ) if ($dep == 1);
+	}
+
+    }
+    _bk_unlock;
+
+    printf( BKCONFIG "#\n");
+    printf( BKCONFIG "# end of config.bkconfig\n");
+    printf( BKCONFIG "#\n");
+
+    close( BKCONFIG );
+
+    return( $ret );
+
+}
 
 #
 # sub _bk_dump_header( $filenamepath )
@@ -1038,6 +1200,41 @@ sub bk_parse_source
 
     return($ret);
 }
+
+#
+# bk_parse_config ($save_filename)
+#	parse a ".bkconfig" file
+#	which has 'VARIABLE = <value>'
+#	format
+#
+sub bk_parse_config
+{
+    my($save_filename) = @_;
+    my $ret = 0;
+
+    local *BKCONFIGFILE;
+
+    dprintf("oldconfig: file <%s>\n", $save_filename );
+
+    open( BKCONFIGFILE, "<" . $save_filename ) or (return $ret = -1);
+
+    _bk_lock;
+    {
+	my $_config_parser;
+	$_config_parser = Parse::RecDescent->new( $bkconfiggrammar );
+	while( <BKCONFIGFILE> )
+	{
+	    my $_txt = $_;
+	    $_config_parser->startrule($_txt);
+	}
+    }
+    _bk_unlock;
+
+    close( BKCONFIGFILE );
+
+    return( $ret );
+}
+
 #
 # end direct call functions
 #
@@ -1057,7 +1254,7 @@ sub bk_parse_source
 #
 sub bk_parse
 {
-    my($configfile, $headerfile) = @_;
+    my($configfile, $headerfile, $oldconfig, $force) = @_;
 
     my $fnamepath = $configfile;
 
@@ -1069,7 +1266,6 @@ sub bk_parse
 
     open( BKPARSEFILE, "<" . $fnamepath ) or die("error: cannot open $fnamepath\nerror: exiting!\n\n");
 
-
     while( <BKPARSEFILE> )
     {
 	my $text_line = $_;	# read the line
@@ -1078,15 +1274,30 @@ sub bk_parse
 
     dprintf("bk_parse: %s (finis)\n", $fnamepath);
 
+    bk_parse_config( $oldconfig );
+
     _bk_update_deps;
 
     _bk_dump_vars if ( 1 == $BKC_DEBUGME );
 
-    bk_config_commandline;
+    # using $force = 'y' will avoid user input
+    if( $force =~ /y/i )
+    {
+	bk_printf("using default options from (%s)\n", $oldconfig );
+    }
+    else
+    {
+	bk_config_commandline;
+    }
 
     close( BKPARSEFILE );
 
     _bk_dump_header($headerfile);
+
+    if( $oldconfig !~ /^$/ )
+    {
+	bk_write_config($oldconfig); # save choices to .bkconfig
+    }
 
 }
 #
