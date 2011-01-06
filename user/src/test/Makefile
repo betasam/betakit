@@ -4,10 +4,16 @@
 # Description:	Beta's toolkit to simplify linux userspace apps.
 #
 
+include $(TOP_DIR)/$(CONFIG_FILE)
+
 all: testsrc
 
 TEST_SRCS = hello.c
 TEST_LIBS = -lbsys -lbdata -lbui
+
+ifeq ($(BK_SYS_JEMALLOC),y)
+TEST_LIBS += -ljemalloc -lpthread -ldl
+endif
 
 LDFLAGS += -lm
 

@@ -27,6 +27,9 @@
 #include <berror.h>
 
 #include <memory.h>
+
+/* @remark experimental jemalloc support */
+
 #include <dhrystone.h>
 #include <whetstone.h>
 
@@ -38,8 +41,8 @@
 
 #include <cli.h>
 
-
-#define	SZ_BETAKIT_PROMPT	"BetaKit> "
+/* @remark CLI prompt strings for 'hello.c' */
+#define	SZ_BETAKIT_PROMPT	"BetaKit " CONFIG_BK_VERSION "> "
 #define SZ_BETAKIT_HELLO	"Hello Betakit User!"
 
 #define MAX_MENU_ITEMS		8
@@ -54,6 +57,11 @@ t_string menu_items[MAX_MENU_ITEMS] = {
   "Test Strings",
   "Exit Menu"
 };
+
+#ifdef CONFIG_BK_SYS_JEMALLOC
+t_memory_calls jemalloc;
+#endif
+
 
 /**
  * @fn void say_hello(void)
@@ -80,7 +88,7 @@ void say_hello( void )
 
   mem_free( str_hello );
 #else
-  printf("%s: hello() requires memory management (SYS) support, currently disabled.\n", __FUNCTION__ );
+  printf("%s() requires memory management (SYS) support, currently disabled.\n", __FUNCTION__ );
 #endif
   return;
 }
@@ -424,6 +432,10 @@ void init_menu( void )
  */
 void __ctor_main( void )
 {
+#ifdef CONFIG_BK_SYS_JEMALLOC
+  bk_jemalloc_calls( &jemalloc );
+#endif
+
 #ifdef CONFIG_BK_SYS_ERRORHANDLER
   _bk_errlog_init( BK_STDERR );
 #else
@@ -476,7 +488,7 @@ int main( void )
  */
 int main( void )
 {
-  printf("%s: CONFIG_BK_TEST_HELLO disabled\n", __FUNCTION__ );
+  printf("%s: CONFIG_BK_TEST_HELLO disabled\n", __FILE__ );
   return(0);
 }
 
