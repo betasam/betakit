@@ -7,6 +7,11 @@ CONFIG BK_SYS_MEMORY
        default y
        depends on BK_SYSTEM
 
+CONFIG BK_SYS_JEMALLOC
+       bool "Support JEMALLOC (Experimental)"
+       default n
+       depends on BK_SYS_MEMORY
+
 CONFIG BK_SYS_ERRORHANDLER
        bool "Betakit Error handler"
        default y
