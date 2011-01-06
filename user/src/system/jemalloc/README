@@ -1,0 +1,31 @@
+jemalloc is a general-purpose scalable concurrent malloc(3) implementation.
+This distribution is a stand-alone "portable" implementation that currently
+targets Linux and Apple OS X.  jemalloc is included as the default allocator in
+the FreeBSD and NetBSD operating systems, and it is used by the Mozilla Firefox
+web browser on Microsoft Windows-related platforms.  Depending on your needs,
+one of the other divergent versions may suit your needs better than this
+distribution.
+
+The COPYING file contains copyright and licensing information.
+
+The INSTALL file contains information on how to configure, build, and install
+jemalloc.
+
+The ChangeLog file contains a brief summary of changes for each release.
+
+URL: http://www.canonware.com/jemalloc/
+
+--
+
+BetaKit
+
+jemalloc in here has been ported more specific to GNU/Linux (and
+derived) platforms. This source code has been modified. Please visit
+http://www.canonware.com/jemalloc for the original sources. The first
+source pull was done on 5-Jan-2011 from the git repository.
+
+The ChangeLog specified above has not been retained within BetaKit sources.
+
+INSTALL has also not been retained, as this source subset of jemalloc is
+incomplete.
+
