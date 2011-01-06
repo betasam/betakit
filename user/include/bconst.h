@@ -47,6 +47,7 @@
  * ZERO
  * ZERO_F
  */
+
 #ifndef true
 #define true		1
 #endif
