@@ -6,11 +6,13 @@
 # Copyright (c) 2008-2012 Sunil Beta Baskar <betasam@gmail.com>
 #
 # CHANGELOG
+#	06-JAN-2011	experimental jemalloc support
+#			will need some extra work
 #	04-JAN-2011	oldconfig support
 #			help target added
 #			script calls, command calls set to variables
 #			install-deps now installs dependencies on debian
-#			 like systems.
+#                       like systems.
 #	03-JAN-2011	Doxyfile.Template helps building Doxyfile
 #	30-DEC-2010	make configure works now
 #	22-DEC-2010	Added DEBUG option for Makefile
@@ -23,6 +25,7 @@
 # (or)	$ make clean
 # (or)	$ make -k
 # (or)  $ make all
+# (or)  $ make help
 # (or)  $ make DEBUG=1 all
 # (or)  $ make all -- 1> build.log 2> build.err
 #
@@ -42,8 +45,10 @@ VERSION_VAR   := CONFIG_BK_VERSION
 VERSION_HEADER:= bkversion.h
 
 # toolchain and architecture
-ARCH  =
-CROSS =
+ARCH      =
+CROSS     =
+BINPREFIX = 
+
 ifeq ($(ARCH),"arm")
 BINPREFIX = arm-
 endif
@@ -54,7 +59,6 @@ ifeq ($(ARCH),"xscale")
 BINPREFIX = xscale-
 endif
 
-BINPREFIX = 
 CC    = $(CROSS)gcc
 AR    = $(CROSS)ar
 LD    = $(CROSS)ld
@@ -74,6 +78,7 @@ SED     = sed
 GREP    = grep
 SUDO    = sudo
 APTGET  = apt-get
+MAKE    = make
 else
 # system tools from environment
 LN      = $(shell which ln)
@@ -88,6 +93,7 @@ SED     = $(shell which sed)
 GREP    = $(shell which grep)
 SUDO    = $(shell which sudo)
 APTGET  = $(shell which apt-get)
+MAKE    = $(shell which make)
 endif
 
 # internal command calls
@@ -148,15 +154,15 @@ PACKAGE_DEPS  += sed
 PACKAGE_DEPS  += findutils
 PACKAGE_DEPS  += libparse-recdescent-perl
 
-
 ifeq ($(DEBUG),1)
+MAKE_FLAGS += DEBUG=1 
 CFLAGS = -O0 -g -Wall
 endif
 
 # for all subdirectory makefiles
 export CC AR INCLUDES INCLUDE_DIR SRC_SUBDIRS OBJ_DIR BIN_DIR TOP_DIR CFLAGS SRC_DIR
 export LIB_DIR LIBFLAGS SHAREDLIB VERSION SUBVERSION LN LDFLAGS RM MKDIR FIND
-export ECHO BUILD_DIR SED BINPREFIX STRIP
+export ECHO BUILD_DIR SED BINPREFIX STRIP CONFIG_FILE
 
 # default rule, targets = all
 all: dep $(SRC_SUBDIRS) tags
@@ -165,6 +171,7 @@ clean:
 	for D in $(SRC_SUBDIRS); do \
 	 $(MAKE) $(MAKE_FLAGS) -C $(TOP_DIR)/$(SRC_DIR)/$$D clean; \
 	done
+	 $(MAKE) $(MAKE_FLAGS) -C $(TOP_DIR)/$(SRC_DIR)/system/jemalloc clean
 	if [ -d $(TOP_DIR)/$(DOC_DIR)/ ]; then \
 	 $(RM) -rf $(TOP_DIR)/$(DOC_DIR)/*; \
 	 $(RM) -f $(TOP_DIR)/$(BIN_DIR)/*; \
@@ -188,6 +195,10 @@ build-deps:
 	if [ ! -x $(TOP_DIR)/$(BUILD_DIR)/$(PATHFACTOR_PL) ]; then \
 	$(ECHO) "Error! cannot find build/$(PATHFACTOR_PL)"; \
 	$(EXIT) 3; \
+	fi
+	if [ ! -f $(TOP_DIR)/$(CONFIG_FILE) ]; then \
+	$(ECHO) "Error! Run 'make configure' first."; \
+	$(EXIT) 4; \
 	fi
 
 #
@@ -255,6 +266,9 @@ help:
 	@$(ECHO) "                      this does not install latex"
 	@$(ECHO) "                      but installs all other package dependencies."
 	@$(ECHO) "                      needs 'sudo' and 'apt'"
+	@$(ECHO)
+	@$(ECHO) "other: make NOAUTO=1"
+	@$(ECHO) "                   does use 'which' to find executables for make."
 	@$(ECHO)
 
 .PHONY: clean doc tags mrproper build-dirs build-deps configure $(RAW_DOXYFILE) help README TAGS install-deps
